@@ -1151,7 +1151,7 @@ function getFatherPassword(){
         resolve(true);
       } else {
         // Verify password
-        const entered = prompt('🔐 Father's password required:');
+        const entered = prompt('🔐 Father password required:');
         if(!entered){resolve(false);return;}
         if(btoa(entered.trim())===stored){
           sessionStorage.setItem('draria_auth','ok');
