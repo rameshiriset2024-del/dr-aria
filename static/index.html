@@ -323,6 +323,45 @@ textarea.ta-s{border-color:var(--son);box-shadow:0 0 0 3px var(--son-lt)}
 }
 .cold-banner.show{display:block}
 .cold-spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:8px}
+
+/* Session delete button */
+.sc-del-btn{
+  padding:8px 12px;background:none;border:none;
+  cursor:pointer;font-size:16px;opacity:0;
+  transition:opacity .2s;flex-shrink:0;
+  border-radius:0 18px 18px 0;
+}
+.sc:hover .sc-del-btn{opacity:1;}
+.sc-del-btn:hover{background:#FEF2F2;}
+
+/* Message actions */
+.msg-actions{
+  display:none;
+  gap:4px;margin-top:4px;
+  justify-content:flex-end;
+}
+.mrow:hover .msg-actions{display:flex;}
+.mrow.user-row:hover .msg-actions{display:flex;}
+
+.mact-btn{
+  width:26px;height:26px;
+  border:1px solid var(--border);border-radius:7px;
+  background:white;cursor:pointer;
+  font-size:12px;display:flex;align-items:center;justify-content:center;
+  transition:all .15s;
+}
+.mact-btn:hover{background:var(--cream);transform:scale(1.1);}
+.mact-del:hover{background:#FEF2F2;border-color:#FCA5A5;}
+
+/* Session header action - clear all */
+.btn-clear-all{
+  padding:7px 13px;border:1.5px solid #FCA5A5;border-radius:9px;
+  background:#FEF2F2;color:#DC2626;
+  font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;
+  cursor:pointer;transition:all .15s;
+}
+.btn-clear-all:hover{background:#DC2626;color:white;}
+
 .flash-ov{position:fixed;inset:0;pointer-events:none;z-index:9999;animation:fFade .7s ease forwards}
 @keyframes fFade{0%{background:rgba(10,92,99,.12)}100%{background:rgba(10,92,99,0)}}
 @media(max-width:768px){.hero-content{grid-template-columns:1fr;gap:32px;padding:32px 24px 48px}.hero-right{display:none}.hero-nav{padding:16px 24px}.about{padding:48px 24px}.s-body{padding:20px 16px}.s-header{padding:0 16px}.chat-acts .cbtn span{display:none}}
@@ -466,6 +505,8 @@ textarea.ta-s{border-color:var(--son);box-shadow:0 0 0 3px var(--son-lt)}
     </div>
     <div class="s-hact">
       <button class="btn-outline" onclick="showScreen('heroScreen')">About</button>
+      <button class="btn-clear-all" onclick="deleteAllSessions()">🗑️ Clear All</button>
+      <button class="btn-outline" onclick="resetPassword()" title="Father: change password">🔐</button>
       <button class="btn-new" onclick="openNewModal()">✦ New Session</button>
     </div>
   </div>
@@ -784,18 +825,37 @@ function openSession(id,name){
   subscribeMessages(id);
 }
 function goToSessions(){
-  if(currentSessionId){db.ref(`sessions/${currentSessionId}/messages`).off();db.ref(`sessions/${currentSessionId}/typing`).off();}
-  currentSessionId=null;showScreen('sessionScreen');
+  if(currentSessionId){
+    try{
+      db.ref(`sessions/${currentSessionId}/messages`).off();
+      db.ref(`sessions/${currentSessionId}/typing`).off();
+    }catch(e){}
+  }
+  currentSessionId=null;
+  renderedIds=new Set();
+  showScreen('sessionScreen');
 }
 function openNewModal(){document.getElementById('sessNameInput').value='';document.getElementById('newModal').style.display='flex';setTimeout(()=>document.getElementById('sessNameInput').focus(),100)}
 async function createSession(){
   const name=document.getElementById('sessNameInput').value.trim();
   if(!name){document.getElementById('sessNameInput').focus();return}
   closeModal('newModal');
-  const ref=db.ref('sessions').push();
-  await ref.set({name,createdAt:Date.now(),lastActivity:Date.now(),messageCount:0});
-  openSession(ref.key,name);
-  setTimeout(()=>ariaOpening(ref.key),500);
+  try{
+    const ref=db.ref('sessions').push();
+    await ref.set({
+      name,
+      createdAt:Date.now(),
+      lastActivity:Date.now(),
+      messageCount:0,
+      createdBy:'father'
+    });
+    console.log('✅ Session created:',ref.key);
+    openSession(ref.key,name);
+    setTimeout(()=>ariaOpening(ref.key),600);
+  }catch(e){
+    showErr('Failed to create session: '+e.message+'. Check Firebase database rules allow writes.');
+    console.error('Session create error:',e);
+  }
 }
 function confirmReset(){document.getElementById('resetModal').style.display='flex'}
 function doReset(){closeModal('resetModal');goToSessions();openNewModal()}
@@ -805,6 +865,18 @@ function subscribeMessages(id){
   db.ref(`sessions/${id}/messages`).orderByChild('timestamp').on('child_added',snap=>{
     const msg={id:snap.key,...snap.val()};
     if(!renderedIds.has(msg.id)){renderedIds.add(msg.id);renderMsg(msg);scrollBottom();}
+  });
+  // Listen for edits/deletes
+  db.ref(`sessions/${id}/messages`).on('child_changed',snap=>{
+    const msg={id:snap.key,...snap.val()};
+    const bodyEl=document.getElementById('mbody-'+msg.id);
+    if(bodyEl && msg.edited){
+      bodyEl.innerHTML=escH(msg.content)+'<span style="font-size:10px;color:var(--text-low);margin-left:6px">(edited)</span>';
+    }
+  });
+  db.ref(`sessions/${id}/messages`).on('child_removed',snap=>{
+    const el=document.getElementById('msg-'+snap.key);
+    if(el) el.remove();
   });
   db.ref(`sessions/${id}/typing`).on('value',snap=>snap.val()?showTyping():hideTyping());
 }
@@ -903,6 +975,16 @@ function renderMsg(msg){
   const time=new Date(msg.timestamp).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
   const row=document.createElement('div');
   row.className=`mrow ${isAria?'aria-row':'user-row'}`;
+  row.id='msg-'+msg.id;
+
+  // Actions for user messages (edit/delete own messages)
+  const canEdit=!isAria;
+  const actionsHtml=canEdit?`
+    <div class="msg-actions" id="acts-${msg.id}">
+      <button class="mact-btn" onclick="editMsg('${msg.id}','${msg.speaker}')" title="Edit">✏️</button>
+      <button class="mact-btn mact-del" onclick="deleteMsg('${msg.id}','${msg.speaker}')" title="Delete">🗑️</button>
+    </div>`:'';
+
   if(isAria){
     let main=msg.content,dirH='';
     const dm=msg.content.match(/➤\s*\*\*([^*]+)\*\*,?\s*([\s\S]*?)$/);
@@ -916,7 +998,13 @@ function renderMsg(msg){
     }
     row.innerHTML=`<div class="mav mav-a">A</div><div class="mc"><div class="mmeta">✦ Dr. Aria · ${time}</div><div class="mb mb-a">${fmtAria(main)}${dirH}</div></div>`;
   }else{
-    row.innerHTML=`<div class="mav ${cfg.mav}">${cfg.icon}</div><div class="mc"><div class="mmeta">${cfg.icon} ${cfg.label} · ${time}</div><div class="mb ${cfg.mb}">${escH(msg.content)}</div></div>`;
+    row.innerHTML=`
+      <div class="mav ${cfg.mav}">${cfg.icon}</div>
+      <div class="mc" style="position:relative">
+        <div class="mmeta">${cfg.icon} ${cfg.label} · ${time}</div>
+        <div class="mb ${cfg.mb}" id="mbody-${msg.id}">${escH(msg.content)}</div>
+        ${actionsHtml}
+      </div>`;
   }
   wrap.appendChild(row);
 }
@@ -1040,6 +1128,143 @@ function saveTraining(){
 }
 function hasTraining(){return TF.some(f=>trainingData[f]&&trainingData[f].length>0)}
 function updateTrainBadge(){const b=document.getElementById('trainBadge');if(b)b.style.display=hasTraining()?'inline-flex':'none'}
+
+// ── PASSWORD SYSTEM ──
+let fatherPassword = null;
+
+function getFatherPassword(){
+  return new Promise(resolve=>{
+    // Check if password already verified this session
+    if(sessionStorage.getItem('draria_auth')==='ok'){resolve(true);return;}
+
+    // Get stored password from Firebase
+    db.ref('config/fatherPassword').once('value', snap=>{
+      const stored = snap.val();
+
+      if(!stored){
+        // No password set yet — prompt to create one
+        const pw = prompt('🔐 Father: Set a password for protected actions (you will need this for deletions):');
+        if(!pw||pw.trim()===''){resolve(false);return;}
+        db.ref('config/fatherPassword').set(btoa(pw.trim()));
+        sessionStorage.setItem('draria_auth','ok');
+        showOk('✅ Password set. You are now authenticated.');
+        resolve(true);
+      } else {
+        // Verify password
+        const entered = prompt('🔐 Father's password required:');
+        if(!entered){resolve(false);return;}
+        if(btoa(entered.trim())===stored){
+          sessionStorage.setItem('draria_auth','ok');
+          resolve(true);
+        } else {
+          showErr('❌ Wrong password');
+          resolve(false);
+        }
+      }
+    });
+  });
+}
+
+// ── DELETE SESSION ──
+function confirmDeleteSession(id, name){
+  if(!confirm(`Delete session "${name}"?\nThis cannot be undone.`)) return;
+  getFatherPassword().then(ok=>{
+    if(!ok) return;
+    db.ref('sessions/'+id).remove()
+      .then(()=>showOk('Session deleted'))
+      .catch(e=>showErr('Delete failed: '+e.message));
+  });
+}
+
+// ── DELETE ALL SESSIONS ──
+function deleteAllSessions(){
+  if(!confirm('⚠️ Delete ALL sessions permanently? This cannot be undone.')) return;
+  getFatherPassword().then(ok=>{
+    if(!ok) return;
+    db.ref('sessions').remove()
+      .then(()=>{ showOk('All sessions cleared'); })
+      .catch(e=>showErr('Failed: '+e.message));
+  });
+}
+
+// ── DELETE OWN MESSAGE ──
+function deleteMsg(msgId, speaker){
+  // Only allow if active role matches speaker
+  if(activeRole !== speaker){
+    showErr('You can only delete your own messages. Select your role first.');
+    return;
+  }
+  if(!confirm('Delete this message?')) return;
+  db.ref(`sessions/${currentSessionId}/messages/${msgId}`).remove()
+    .then(()=>{
+      const el=document.getElementById('msg-'+msgId);
+      if(el) el.remove();
+      showOk('Message deleted');
+    })
+    .catch(e=>showErr('Delete failed: '+e.message));
+}
+
+// ── EDIT OWN MESSAGE ──
+function editMsg(msgId, speaker){
+  if(activeRole !== speaker){
+    showErr('You can only edit your own messages. Select your role first.');
+    return;
+  }
+  const bodyEl = document.getElementById('mbody-'+msgId);
+  if(!bodyEl) return;
+
+  const current = bodyEl.textContent;
+  const actsEl = document.getElementById('acts-'+msgId);
+
+  // Replace bubble with textarea
+  bodyEl.innerHTML = `
+    <textarea id="edit-ta-${msgId}" style="width:100%;border:2px solid var(--teal);border-radius:10px;padding:9px 12px;font-family:'Outfit',sans-serif;font-size:14px;resize:none;outline:none;min-height:60px;background:white">${escH(current)}</textarea>
+    <div style="display:flex;gap:8px;margin-top:6px">
+      <button onclick="saveEdit('${msgId}','${speaker}')" style="padding:6px 14px;background:var(--teal);color:white;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">Save</button>
+      <button onclick="cancelEdit('${msgId}','${current}')" style="padding:6px 14px;background:var(--border);color:var(--text-mid);border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">Cancel</button>
+    </div>`;
+  if(actsEl) actsEl.style.display='none';
+  const ta=document.getElementById('edit-ta-'+msgId);
+  if(ta){ta.focus();ta.selectionStart=ta.value.length;}
+}
+
+function saveEdit(msgId, speaker){
+  const ta=document.getElementById('edit-ta-'+msgId);
+  if(!ta) return;
+  const newText=ta.value.trim();
+  if(!newText){showErr('Message cannot be empty');return;}
+
+  db.ref(`sessions/${currentSessionId}/messages/${msgId}`)
+    .update({content:newText, edited:true, editedAt:Date.now()})
+    .then(()=>{
+      const bodyEl=document.getElementById('mbody-'+msgId);
+      if(bodyEl) bodyEl.innerHTML=escH(newText)+'<span style="font-size:10px;color:var(--text-low);margin-left:6px">(edited)</span>';
+      const actsEl=document.getElementById('acts-'+msgId);
+      if(actsEl) actsEl.style.display='flex';
+      showOk('Message updated');
+    })
+    .catch(e=>showErr('Edit failed: '+e.message));
+}
+
+function cancelEdit(msgId, original){
+  const bodyEl=document.getElementById('mbody-'+msgId);
+  if(bodyEl) bodyEl.innerHTML=escH(original);
+  const actsEl=document.getElementById('acts-'+msgId);
+  if(actsEl) actsEl.style.display='flex';
+}
+
+// ── RESET PASSWORD ──
+function resetPassword(){
+  getFatherPassword().then(ok=>{
+    if(!ok) return;
+    const newPw=prompt('Enter new Father password:');
+    if(!newPw||newPw.trim()===''){showErr('Password cannot be empty');return;}
+    db.ref('config/fatherPassword').set(btoa(newPw.trim()));
+    sessionStorage.removeItem('draria_auth');
+    showOk('Password updated');
+  });
+}
+
 function fmtAria(t){return escH(t).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>').replace(/\n\n/g,'</p><p style="margin-top:8px">').replace(/\n/g,'<br>')}
 function escH(t=''){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 function scrollBottom(){const c=document.getElementById('msgs');if(c)setTimeout(()=>c.scrollTop=c.scrollHeight,60)}
