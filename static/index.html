@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Dr. Aria · Family Counseling</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
 <style>
@@ -20,33 +20,33 @@
   --mother:#BE185D;--mother-lt:#FCE7F3;
   --daughter:#7C3AED;--daughter-lt:#EDE9FE;
   --son:#C2410C;--son-lt:#FFEDD5;
+  --facilitator:#0A5C63;--facilitator-lt:#D4EEEF;
 }
 body{font-family:'Outfit',sans-serif;background:var(--cream);color:var(--text);overflow-x:hidden}
-.screen{display:none}
-.screen.active{display:block}
+.screen{display:none}.screen.active{display:block}
 #chatScreen.active{display:flex;flex-direction:column;height:100dvh}
 
-/* HERO */
+/* ── HERO ── */
 #heroScreen{background:var(--navy);min-height:100dvh;position:relative;overflow:hidden}
-.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 70% 40%,rgba(10,92,99,.7) 0%,transparent 70%),radial-gradient(ellipse 60% 80% at 10% 80%,rgba(201,150,58,.25) 0%,transparent 60%),radial-gradient(ellipse 40% 40% at 90% 10%,rgba(224,122,95,.2) 0%,transparent 50%)}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 70% 40%,rgba(10,92,99,.7) 0%,transparent 70%),radial-gradient(ellipse 60% 80% at 10% 80%,rgba(201,150,58,.25) 0%,transparent 60%)}
 .orb{position:absolute;border-radius:50%;filter:blur(40px);animation:orbF linear infinite;opacity:.5}
 .o1{width:300px;height:300px;background:rgba(10,92,99,.6);top:-100px;right:-50px;animation-duration:20s}
 .o2{width:200px;height:200px;background:rgba(201,150,58,.4);bottom:100px;left:-50px;animation-duration:15s;animation-delay:-5s}
-.o3{width:150px;height:150px;background:rgba(224,122,95,.3);top:40%;left:30%;animation-duration:18s;animation-delay:-8s}
-@keyframes orbF{0%{transform:translate(0,0) scale(1)}33%{transform:translate(30px,-20px) scale(1.05)}66%{transform:translate(-15px,25px) scale(.97)}100%{transform:translate(0,0) scale(1)}}
+@keyframes orbF{0%{transform:translate(0,0) scale(1)}50%{transform:translate(20px,-15px) scale(1.04)}100%{transform:translate(0,0) scale(1)}}
 .particles{position:absolute;inset:0;overflow:hidden;pointer-events:none}
 .part{position:absolute;width:2px;height:2px;background:rgba(255,255,255,.4);border-radius:50%;animation:pdrift linear infinite}
 @keyframes pdrift{0%{transform:translateY(100vh);opacity:0}10%{opacity:1}90%{opacity:1}100%{transform:translateY(-20px);opacity:0}}
+
 .hero-nav{position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:24px 48px}
 .nav-brand{display:flex;align-items:center;gap:12px}
-.nav-av{width:44px;height:44px;background:linear-gradient(135deg,var(--teal2),var(--gold));border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:white;font-style:italic;box-shadow:0 0 0 1px rgba(255,255,255,.15)}
-.nav-text h1{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:white;letter-spacing:.01em}
+.nav-av{width:44px;height:44px;background:linear-gradient(135deg,var(--teal2),var(--gold));border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:white;font-style:italic}
+.nav-text h1{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:white}
 .nav-text p{font-size:11px;color:rgba(255,255,255,.45);margin-top:1px}
-.nav-actions{display:flex;gap:12px}
 .btn-ghost{padding:9px 20px;border:1px solid rgba(255,255,255,.2);border-radius:10px;color:rgba(255,255,255,.8);background:transparent;font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s}
-.btn-ghost:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.4)}
+.btn-ghost:hover{background:rgba(255,255,255,.08)}
 .btn-gold{padding:10px 24px;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:10px;color:var(--navy);font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;box-shadow:0 4px 20px rgba(201,150,58,.4)}
 .btn-gold:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(201,150,58,.5)}
+
 .hero-content{position:relative;z-index:5;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;padding:60px 48px 80px;max-width:1200px;margin:0 auto}
 .hero-left{animation:hIn .9s cubic-bezier(.22,1,.36,1) both}
 @keyframes hIn{from{opacity:0;transform:translateX(-40px)}to{opacity:1;transform:translateX(0)}}
@@ -55,34 +55,32 @@ body{font-family:'Outfit',sans-serif;background:var(--cream);color:var(--text);o
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 .hero-h2{font-family:'Playfair Display',serif;font-size:clamp(42px,6vw,68px);font-weight:900;color:white;line-height:1.05;letter-spacing:-.02em;margin-bottom:8px}
 .hero-h2 em{font-style:italic;background:linear-gradient(135deg,var(--gold),var(--coral));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.hero-p{font-size:18px;color:rgba(255,255,255,.65);font-weight:300;line-height:1.65;margin:20px 0 32px;max-width:480px}
+.hero-p{font-size:17px;color:rgba(255,255,255,.65);font-weight:300;line-height:1.65;margin:20px 0 32px;max-width:480px}
 .hero-p strong{color:rgba(255,255,255,.9);font-weight:500}
 .hero-btns{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:48px}
 .btn-hp{padding:15px 36px;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:14px;color:var(--navy);font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .25s;box-shadow:0 8px 32px rgba(201,150,58,.45)}
 .btn-hp:hover{transform:translateY(-3px);box-shadow:0 14px 40px rgba(201,150,58,.55)}
-.btn-hs{padding:15px 30px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.18);border-radius:14px;color:white;font-family:'Outfit',sans-serif;font-size:15px;font-weight:500;cursor:pointer;transition:all .25s;backdrop-filter:blur(8px)}
+.btn-hs{padding:15px 30px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.18);border-radius:14px;color:white;font-family:'Outfit',sans-serif;font-size:15px;font-weight:500;cursor:pointer;transition:all .25s}
 .btn-hs:hover{background:rgba(255,255,255,.12)}
 .stats{display:flex;gap:32px}
 .stat-n{font-family:'Playfair Display',serif;font-size:32px;font-weight:700;background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .stat-l{font-size:12px;color:rgba(255,255,255,.4);margin-top:2px}
+
 .hero-right{display:flex;justify-content:center;align-items:center;animation:hIn .9s cubic-bezier(.22,1,.36,1) .15s both}
-.portrait{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:32px;padding:40px 36px;backdrop-filter:blur(20px);position:relative;max-width:360px;width:100%;box-shadow:0 40px 80px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.12)}
-.p-glow{position:absolute;top:-40px;left:50%;transform:translateX(-50%);width:120px;height:120px;background:radial-gradient(circle,rgba(201,150,58,.5),transparent 70%);border-radius:50%;filter:blur(20px)}
-.p-av{width:100px;height:100px;background:linear-gradient(135deg,var(--teal),var(--teal2),var(--gold));border-radius:50%;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:40px;font-weight:700;color:white;font-style:italic;position:relative;z-index:1;box-shadow:0 0 0 4px rgba(201,150,58,.3),0 16px 40px rgba(0,0,0,.3)}
+.portrait{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:32px;padding:36px;backdrop-filter:blur(20px);max-width:340px;width:100%;box-shadow:0 40px 80px rgba(0,0,0,.4)}
+.p-av{width:90px;height:90px;background:linear-gradient(135deg,var(--teal),var(--teal2),var(--gold));border-radius:50%;margin:0 auto 18px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:36px;font-weight:700;color:white;font-style:italic;position:relative;box-shadow:0 0 0 4px rgba(201,150,58,.3),0 16px 40px rgba(0,0,0,.3)}
 .p-av::before{content:'';position:absolute;inset:-8px;border-radius:50%;border:2px dashed rgba(201,150,58,.4);animation:spin 20s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.p-name{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:white;text-align:center;margin-bottom:4px}
-.p-title{text-align:center;font-size:12px;color:rgba(255,255,255,.5);margin-bottom:20px;letter-spacing:.05em;text-transform:uppercase}
-.p-creds{display:flex;flex-direction:column;gap:8px;margin-bottom:24px}
+.p-name{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:white;text-align:center;margin-bottom:4px}
+.p-title{text-align:center;font-size:11px;color:rgba(255,255,255,.5);margin-bottom:18px;letter-spacing:.05em;text-transform:uppercase}
+.p-creds{display:flex;flex-direction:column;gap:7px;margin-bottom:20px}
 .cred{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:9px 13px}
-.cred-icon{font-size:16px;flex-shrink:0}
-.cred-t{font-size:12.5px;color:rgba(255,255,255,.75)}
-.cred-t strong{color:white;font-weight:600;display:block;font-size:13px}
+.cred-icon{font-size:15px;flex-shrink:0}.cred-t{font-size:12px;color:rgba(255,255,255,.75)}.cred-t strong{color:white;font-weight:600;display:block;font-size:12.5px}
 .p-avail{display:flex;align-items:center;justify-content:center;gap:8px;background:rgba(10,92,99,.3);border:1px solid rgba(10,92,99,.5);border-radius:10px;padding:10px;font-size:12px;color:var(--teal-lt);font-weight:500}
 .live-dot{display:inline-block;width:8px;height:8px;background:#4ADE80;border-radius:50%;animation:lpulse 2s infinite;flex-shrink:0}
 @keyframes lpulse{0%,100%{box-shadow:0 0 0 0 rgba(74,222,128,.4)}50%{box-shadow:0 0 0 5px rgba(74,222,128,0)}}
 
-/* ABOUT SECTION */
+/* ── ABOUT ── */
 .about{background:var(--cream);padding:80px 48px;position:relative}
 .about::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--teal),var(--gold),var(--coral),var(--teal))}
 .about-inner{max-width:1100px;margin:0 auto}
@@ -90,305 +88,309 @@ body{font-family:'Outfit',sans-serif;background:var(--cream);color:var(--text);o
 .s-eye::before{content:'';width:24px;height:2px;background:var(--gold)}
 .s-title{font-family:'Playfair Display',serif;font-size:clamp(32px,4vw,48px);font-weight:700;color:var(--navy);margin-bottom:16px;line-height:1.2}
 .s-title em{font-style:italic;color:var(--teal)}
-.s-desc{font-size:17px;color:var(--text-mid);max-width:700px;line-height:1.8;font-weight:300;margin-bottom:56px}
-.phil{background:linear-gradient(135deg,var(--navy),#0D2A4A);border-radius:24px;padding:48px;margin-bottom:56px;position:relative;overflow:hidden}
+.s-desc{font-size:16px;color:var(--text-mid);max-width:700px;line-height:1.8;font-weight:300;margin-bottom:48px}
+.phil{background:linear-gradient(135deg,var(--navy),#0D2A4A);border-radius:24px;padding:48px;margin-bottom:48px;position:relative;overflow:hidden}
 .phil::before{content:'"';position:absolute;top:-10px;left:32px;font-family:'Playfair Display',serif;font-size:180px;font-weight:900;color:rgba(201,150,58,.08);line-height:1;pointer-events:none}
-.phil-q{font-family:'Playfair Display',serif;font-size:clamp(18px,2.5vw,24px);font-style:italic;color:white;line-height:1.7;position:relative;z-index:1;max-width:800px;margin:0 auto;text-align:center}
+.phil-q{font-family:'Playfair Display',serif;font-size:clamp(17px,2.5vw,23px);font-style:italic;color:white;line-height:1.7;position:relative;z-index:1;max-width:800px;margin:0 auto;text-align:center}
 .phil-q strong{font-style:normal;background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.phil-a{text-align:center;margin-top:20px;font-size:13px;color:rgba(255,255,255,.4);letter-spacing:.05em}
-.spec-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;margin-bottom:56px}
-.spec-card{background:white;border:1px solid var(--border);border-radius:20px;padding:28px 24px;transition:all .25s;position:relative;overflow:hidden}
+.phil-a{text-align:center;margin-top:16px;font-size:13px;color:rgba(255,255,255,.4)}
+.spec-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;margin-bottom:48px}
+.spec-card{background:white;border:1px solid var(--border);border-radius:18px;padding:24px;transition:all .25s;position:relative;overflow:hidden}
 .spec-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--cc);transform:scaleX(0);transform-origin:left;transition:transform .3s}
-.spec-card:hover{transform:translateY(-4px);box-shadow:0 20px 40px rgba(0,0,0,.08)}
-.spec-card:hover::after{transform:scaleX(1)}
-.spec-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:16px}
-.spec-card h3{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--navy);margin-bottom:8px}
-.spec-card p{font-size:13.5px;color:var(--text-mid);line-height:1.65;font-weight:300}
-.approach-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:56px}
-.a-step{display:flex;flex-direction:column;align-items:center;text-align:center;padding:24px 16px;background:white;border-radius:16px;border:1px solid var(--border)}
-.a-num{width:40px;height:40px;background:linear-gradient(135deg,var(--teal),var(--teal2));border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:white;margin-bottom:12px;box-shadow:0 6px 16px rgba(10,92,99,.3)}
-.a-step h4{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:6px}
-.a-step p{font-size:12.5px;color:var(--text-low);line-height:1.5}
-.cta-banner{background:linear-gradient(135deg,var(--teal),var(--teal2));border-radius:24px;padding:48px;text-align:center;position:relative;overflow:hidden}
-.cta-banner::before{content:'';position:absolute;top:-50%;right:-10%;width:300px;height:300px;background:radial-gradient(circle,rgba(201,150,58,.3),transparent 60%);border-radius:50%}
-.cta-banner h3{font-family:'Playfair Display',serif;font-size:clamp(24px,3vw,36px);font-weight:700;color:white;margin-bottom:12px;position:relative}
-.cta-banner p{font-size:16px;color:rgba(255,255,255,.7);margin-bottom:28px;font-weight:300;position:relative}
-.btn-begin{padding:16px 48px;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:14px;color:var(--navy);font-family:'Outfit',sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:all .25s;box-shadow:0 8px 32px rgba(201,150,58,.4);position:relative}
+.spec-card:hover{transform:translateY(-3px);box-shadow:0 16px 32px rgba(0,0,0,.07)}.spec-card:hover::after{transform:scaleX(1)}
+.spec-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:14px}
+.spec-card h3{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--navy);margin-bottom:6px}
+.spec-card p{font-size:13px;color:var(--text-mid);line-height:1.6;font-weight:300}
+.cta-banner{background:linear-gradient(135deg,var(--teal),var(--teal2));border-radius:24px;padding:48px;text-align:center}
+.cta-banner h3{font-family:'Playfair Display',serif;font-size:clamp(22px,3vw,34px);font-weight:700;color:white;margin-bottom:10px}
+.cta-banner p{font-size:15px;color:rgba(255,255,255,.7);margin-bottom:24px}
+.btn-begin{padding:15px 44px;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:14px;color:var(--navy);font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .25s;box-shadow:0 8px 32px rgba(201,150,58,.4)}
 .btn-begin:hover{transform:translateY(-3px);box-shadow:0 14px 40px rgba(201,150,58,.55)}
 
-/* CONFIG */
-#configScreen{display:none;align-items:center;justify-content:center;min-height:100dvh;padding:40px 20px}
-#configScreen.active{display:flex}
-.cfg-wrap{max-width:500px;width:100%}
-.cfg-back{display:flex;align-items:center;gap:8px;margin-bottom:28px;color:var(--teal);font-size:13px;font-weight:600;cursor:pointer;background:none;border:none}
-.cfg-top{background:linear-gradient(135deg,var(--navy),#0D2A4A);border-radius:24px 24px 0 0;padding:36px 32px 32px;text-align:center;position:relative;overflow:hidden}
-.cfg-top::after{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:radial-gradient(circle,rgba(201,150,58,.3),transparent 60%);border-radius:50%}
-.cfg-av{width:72px;height:72px;background:linear-gradient(135deg,var(--teal),var(--gold));border-radius:50%;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:30px;font-weight:700;color:white;font-style:italic;box-shadow:0 0 0 4px rgba(201,150,58,.25),0 16px 40px rgba(0,0,0,.3);position:relative;z-index:1}
-.cfg-top h2{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:white;margin-bottom:6px;position:relative;z-index:1}
-.cfg-top p{font-size:13px;color:rgba(255,255,255,.5);position:relative;z-index:1}
-.cfg-body{background:white;border-radius:0 0 24px 24px;padding:28px 32px;border:1px solid var(--border);border-top:none;box-shadow:0 20px 60px rgba(0,0,0,.08)}
-.cfg-notice{display:flex;align-items:flex-start;gap:10px;background:var(--sage-lt);border-radius:12px;padding:14px;margin-bottom:20px;font-size:13px;color:#2D6A56;line-height:1.6}
-.fld label{display:block;font-size:11.5px;font-weight:700;color:var(--text-mid);letter-spacing:.07em;text-transform:uppercase;margin-bottom:6px}
-.fld input{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:11px 14px;font-family:'Outfit',sans-serif;font-size:14px;color:var(--text);background:var(--cream);outline:none;transition:all .2s;margin-bottom:4px}
-.fld input:focus{border-color:var(--teal);background:white;box-shadow:0 0 0 3px rgba(10,92,99,.08)}
-.fld-hint{font-size:12px;color:var(--text-low);margin-bottom:16px;padding-left:2px}
-.btn-connect{width:100%;padding:14px;background:linear-gradient(135deg,var(--teal),var(--teal2));color:white;border:none;border-radius:12px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;margin-top:8px;box-shadow:0 6px 24px rgba(10,92,99,.3)}
-.btn-connect:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(10,92,99,.4)}
+/* ── FACILITATOR PORTAL ── */
+#facilitatorScreen{display:none;min-height:100dvh;flex-direction:column;background:var(--cream)}
+#facilitatorScreen.active{display:flex}
 
-/* SESSION LIST */
+.fac-header{background:linear-gradient(135deg,var(--navy),#0D2A4A);padding:20px 32px;display:flex;align-items:center;gap:14px;flex-shrink:0;box-shadow:0 4px 20px rgba(0,0,0,.2)}
+.fac-av{width:46px;height:46px;background:linear-gradient(135deg,var(--teal),var(--gold));border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:19px;font-weight:700;color:white;font-style:italic;box-shadow:0 4px 14px rgba(10,92,99,.4)}
+.fac-title h1{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:white}
+.fac-title p{font-size:11px;color:rgba(255,255,255,.45);margin-top:2px}
+.fac-badge{margin-left:auto;background:rgba(201,150,58,.2);border:1px solid rgba(201,150,58,.4);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:700;color:var(--gold2);display:flex;align-items:center;gap:6px}
+.fac-dot{width:6px;height:6px;background:var(--gold2);border-radius:50%;animation:blink 2s infinite}
+
+.fac-body{flex:1;overflow-y:auto;padding:28px 32px}
+.fac-actions{display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap}
+.btn-fac-new{padding:11px 24px;background:linear-gradient(135deg,var(--teal),var(--teal2));color:white;border:none;border-radius:12px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;box-shadow:0 4px 16px rgba(10,92,99,.3)}
+.btn-fac-new:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(10,92,99,.4)}
+.btn-fac-train{padding:11px 20px;background:linear-gradient(135deg,var(--gold-lt),#FEF9ED);border:1.5px solid rgba(201,150,58,.4);border-radius:12px;color:var(--gold);font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s}
+.btn-fac-train:hover{border-color:var(--gold);background:var(--gold-lt)}
+.btn-fac-danger{padding:11px 20px;background:#FEF2F2;border:1.5px solid #FCA5A5;border-radius:12px;color:#DC2626;font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s}
+.btn-fac-danger:hover{background:#DC2626;color:white}
+.btn-fac-settings{padding:11px 18px;background:var(--cream);border:1.5px solid var(--border);border-radius:12px;color:var(--text-mid);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-fac-settings:hover{border-color:var(--teal);color:var(--teal)}
+
+.sess-grid-label{font-size:12px;font-weight:700;color:var(--text-low);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.sess-grid-label::after{content:'';flex:1;height:1px;background:var(--border)}
+
+.sess-card{background:white;border:1.5px solid var(--border);border-radius:18px;padding:0;margin-bottom:12px;overflow:hidden;transition:all .2s;box-shadow:0 2px 8px rgba(0,0,0,.03)}
+.sess-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.08)}
+.sc-stripe{width:5px;flex-shrink:0;background:linear-gradient(to bottom,var(--teal),var(--gold))}
+.sc-main{display:flex;align-items:center}
+.sc-body-click{flex:1;padding:16px 18px;cursor:pointer;display:flex;align-items:center;gap:14px}
+.sc-body-click:hover{background:rgba(10,92,99,.02)}
+.sc-icon{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.sc-info h3{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--navy);margin-bottom:3px}
+.sc-info p{font-size:12px;color:var(--text-low)}
+.sc-roles{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+.sc-role-tag{padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700}
+.sc-acts{display:flex;gap:1px;flex-shrink:0;border-left:1px solid var(--border)}
+.sc-act-btn{width:44px;height:100%;display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;border:none;background:none;transition:background .15s;padding:16px 0}
+.sc-act-btn:hover{background:var(--cream)}
+.sc-act-btn.del:hover{background:#FEF2F2}
+
+.sess-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:50vh;gap:12px;color:var(--text-low)}
+.sess-empty-art{font-size:56px}
+.sess-empty h3{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--text-mid)}
+
+/* ── SESSION PASSWORD SCREEN ── */
+#sessionPasswordScreen{display:none;align-items:center;justify-content:center;min-height:100dvh;background:var(--cream)}
+#sessionPasswordScreen.active{display:flex}
+.pw-card{background:white;border-radius:24px;padding:40px 36px;max-width:400px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.1);border:1px solid var(--border);text-align:center}
+.pw-av{width:80px;height:80px;background:linear-gradient(135deg,var(--teal),var(--gold));border-radius:50%;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:32px;font-weight:700;color:white;font-style:italic;box-shadow:0 8px 28px rgba(10,92,99,.3)}
+.pw-card h2{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--navy);margin-bottom:6px}
+.pw-card p{font-size:13px;color:var(--text-mid);margin-bottom:24px;line-height:1.6}
+.pw-roles{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:22px}
+.pw-role-chip{padding:6px 14px;border-radius:20px;font-size:13px;font-weight:700;border:2px solid transparent}
+.pw-input-wrap{position:relative;margin-bottom:16px}
+.pw-input{width:100%;border:2px solid var(--border);border-radius:12px;padding:13px 48px 13px 16px;font-family:'Outfit',sans-serif;font-size:20px;letter-spacing:8px;text-align:center;color:var(--text);background:var(--cream);outline:none;transition:border-color .2s}
+.pw-input:focus{border-color:var(--teal);background:white}
+.pw-hint{font-size:12px;color:var(--text-low);margin-bottom:20px}
+.btn-pw-enter{width:100%;padding:14px;background:linear-gradient(135deg,var(--teal),var(--teal2));color:white;border:none;border-radius:12px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;box-shadow:0 6px 20px rgba(10,92,99,.3)}
+.btn-pw-enter:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(10,92,99,.4)}
+.btn-pw-back{margin-top:12px;background:none;border:none;color:var(--text-low);font-family:'Outfit',sans-serif;font-size:13px;cursor:pointer;font-weight:600}
+.btn-pw-back:hover{color:var(--text-mid)}
+
+/* ── SESSIONS SCREEN (member view) ── */
 #sessionScreen{display:none;min-height:100dvh;flex-direction:column}
 #sessionScreen.active{display:flex}
-.s-header{background:white;border-bottom:1px solid var(--border);padding:0 32px;display:flex;align-items:stretch;box-shadow:0 2px 16px rgba(0,0,0,.04);flex-shrink:0}
-.s-brand{display:flex;align-items:center;gap:12px;padding:16px 0;margin-right:auto}
-.s-brand-av{width:40px;height:40px;background:linear-gradient(135deg,var(--teal),var(--gold));border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:white;font-style:italic;box-shadow:0 4px 14px rgba(10,92,99,.3)}
-.s-brand-t h1{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--navy)}
+.s-header{background:white;border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:stretch;box-shadow:0 2px 16px rgba(0,0,0,.04);flex-shrink:0}
+.s-brand{display:flex;align-items:center;gap:12px;padding:14px 0;margin-right:auto}
+.s-brand-av{width:38px;height:38px;background:linear-gradient(135deg,var(--teal),var(--gold));border-radius:11px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:white;font-style:italic}
+.s-brand-t h1{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--navy)}
 .s-brand-t p{font-size:11px;color:var(--text-low);margin-top:1px}
-.s-hact{display:flex;gap:10px;align-items:center}
-.btn-new{padding:10px 22px;background:linear-gradient(135deg,var(--teal),var(--teal2));color:white;border:none;border-radius:10px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;box-shadow:0 4px 14px rgba(10,92,99,.25)}
-.btn-new:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(10,92,99,.35)}
-.btn-outline{padding:10px 18px;border:1.5px solid var(--border);border-radius:10px;background:var(--cream);color:var(--text-mid);font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s}
+.s-hact{display:flex;gap:8px;align-items:center}
+.btn-outline{padding:8px 16px;border:1.5px solid var(--border);border-radius:9px;background:var(--cream);color:var(--text-mid);font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}
 .btn-outline:hover{border-color:var(--teal);color:var(--teal)}
-.s-body{flex:1;overflow-y:auto;padding:32px}
-.s-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:60vh;gap:14px}
-.s-empty-art{width:120px;height:120px;background:linear-gradient(135deg,var(--teal-lt),var(--gold-lt));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:50px;margin-bottom:8px}
-.s-empty h3{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--navy)}
-.s-empty p{font-size:14px;color:var(--text-low);text-align:center;max-width:280px;line-height:1.6}
-.sl-label{font-size:12px;font-weight:700;color:var(--text-low);text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px;display:flex;align-items:center;gap:8px}
-.sl-label::after{content:'';flex:1;height:1px;background:var(--border)}
-.sc{background:white;border:1px solid var(--border);border-radius:18px;margin-bottom:12px;cursor:pointer;transition:all .2s;overflow:hidden;display:flex;box-shadow:0 2px 8px rgba(0,0,0,.03)}
-.sc:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(0,0,0,.08)}
-.sc-stripe{width:5px;flex-shrink:0;background:linear-gradient(to bottom,var(--teal),var(--gold))}
-.sc-body{flex:1;padding:18px 20px;display:flex;align-items:center;gap:16px}
-.sc-icon{width:50px;height:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
-.sc-info{flex:1;min-width:0}
-.sc-info h3{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px}
-.sc-info p{font-size:12px;color:var(--text-low)}
-.sc-arr{font-size:18px;color:var(--text-low);padding-right:4px;flex-shrink:0;transition:transform .2s}
-.sc:hover .sc-arr{transform:translateX(4px);color:var(--teal)}
+.btn-fac-login{padding:8px 16px;background:linear-gradient(135deg,var(--teal),var(--teal2));color:white;border:none;border-radius:9px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;cursor:pointer}
 
-/* CHAT */
-.chat-top{background:white;border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;box-shadow:0 2px 12px rgba(0,0,0,.04)}
-.c-back{width:36px;height:36px;border:1.5px solid var(--border);border-radius:10px;background:var(--cream);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .15s;flex-shrink:0}
+.s-body{flex:1;overflow-y:auto;padding:24px}
+.s-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:60vh;gap:12px}
+.s-empty-art{width:100px;height:100px;background:linear-gradient(135deg,var(--teal-lt),var(--gold-lt));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:44px}
+.s-empty h3{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--navy)}
+.s-empty p{font-size:13px;color:var(--text-low);text-align:center;max-width:260px;line-height:1.6}
+.sl-label{font-size:12px;font-weight:700;color:var(--text-low);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.sl-label::after{content:'';flex:1;height:1px;background:var(--border)}
+
+.ms-card{background:white;border:1.5px solid var(--border);border-radius:16px;padding:16px 18px;margin-bottom:10px;cursor:pointer;transition:all .2s;box-shadow:0 2px 6px rgba(0,0,0,.03)}
+.ms-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.07);border-color:var(--teal)}
+.ms-card-top{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.ms-card-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.ms-card-name{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--navy)}
+.ms-card-meta{font-size:11px;color:var(--text-low);margin-top:2px}
+.ms-card-lock{margin-left:auto;font-size:16px}
+.ms-roles{display:flex;gap:5px;flex-wrap:wrap}
+.ms-role-tag{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+
+/* ── CHAT SCREEN ── */
+.chat-top{background:white;border-bottom:1px solid var(--border);padding:10px 14px;display:flex;align-items:center;gap:10px;flex-shrink:0;box-shadow:0 2px 10px rgba(0,0,0,.04)}
+.c-back{width:34px;height:34px;border:1.5px solid var(--border);border-radius:9px;background:var(--cream);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:all .15s;flex-shrink:0}
 .c-back:hover{background:var(--teal-lt);border-color:var(--teal)}
-.c-av{width:38px;height:38px;background:linear-gradient(135deg,var(--teal),var(--gold));border-radius:11px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:white;font-style:italic;box-shadow:0 3px 10px rgba(10,92,99,.25)}
+.c-av{width:36px;height:36px;background:linear-gradient(135deg,var(--teal),var(--gold));border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:14px;font-weight:700;color:white;font-style:italic}
 .c-title{flex:1;min-width:0}
-.c-title h2{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.c-title p{font-size:11px;color:var(--text-low);display:flex;align-items:center;gap:4px}
-.chat-ld{display:inline-block;width:6px;height:6px;background:#22C55E;border-radius:50%;animation:lpulse 2s infinite}
-.chat-acts{display:flex;gap:7px;flex-shrink:0}
-.cbtn{padding:7px 13px;border:1.5px solid var(--border);border-radius:9px;background:var(--cream);color:var(--text-mid);font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;display:flex;align-items:center;gap:5px}
-.cbtn:hover{background:white;box-shadow:0 3px 10px rgba(0,0,0,.07)}
+.c-title h2{font-family:'Playfair Display',serif;font-size:14px;font-weight:700;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.c-title p{font-size:10px;color:var(--text-low);display:flex;align-items:center;gap:3px}
+.chat-ld{display:inline-block;width:5px;height:5px;background:#22C55E;border-radius:50%;animation:lpulse 2s infinite}
+.chat-acts{display:flex;gap:6px;flex-shrink:0}
+.cbtn{padding:6px 11px;border:1.5px solid var(--border);border-radius:8px;background:var(--cream);color:var(--text-mid);font-family:'Outfit',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:4px}
+.cbtn:hover{background:white;box-shadow:0 2px 8px rgba(0,0,0,.07)}
 .cbtn.train{background:linear-gradient(135deg,var(--gold-lt),#FEF9ED);border-color:rgba(201,150,58,.3);color:var(--gold)}
 .cbtn.train:hover{border-color:var(--gold)}
-.cbtn.danger:hover{background:#FEF2F2;border-color:#FCA5A5;color:#DC2626}
-.t-badge{display:inline-flex;align-items:center;gap:4px;background:var(--gold-lt);border:1px solid rgba(201,150,58,.3);border-radius:20px;padding:2px 8px;font-size:10px;font-weight:700;color:var(--gold)}
+.t-badge{background:var(--gold-lt);border:1px solid rgba(201,150,58,.3);border-radius:20px;padding:1px 7px;font-size:10px;font-weight:700;color:var(--gold)}
 
-/* ROLE BAR */
-.role-bar{background:white;border-bottom:1px solid var(--border);padding:8px 14px;display:flex;gap:8px;align-items:center;flex-shrink:0;overflow-x:auto;scrollbar-width:none}
+.role-bar{background:white;border-bottom:1px solid var(--border);padding:7px 12px;display:flex;gap:6px;align-items:center;flex-shrink:0;overflow-x:auto;scrollbar-width:none}
 .role-bar::-webkit-scrollbar{display:none}
-.rl{font-size:11px;font-weight:700;color:var(--text-low);white-space:nowrap;letter-spacing:.04em;padding:0 4px;flex-shrink:0}
-.rchip{display:flex;align-items:center;gap:6px;padding:7px 16px;border-radius:22px;border:2px solid transparent;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .18s;white-space:nowrap;flex-shrink:0}
-.rf{background:var(--father-lt);color:var(--father)}
-.rm{background:var(--mother-lt);color:var(--mother)}
-.rd{background:var(--daughter-lt);color:var(--daughter)}
-.rs{background:var(--son-lt);color:var(--son)}
-.rf.sel{background:var(--father);color:white;border-color:var(--father);box-shadow:0 4px 16px rgba(37,99,235,.4);transform:scale(1.04)}
-.rm.sel{background:var(--mother);color:white;border-color:var(--mother);box-shadow:0 4px 16px rgba(190,24,93,.4);transform:scale(1.04)}
-.rd.sel{background:var(--daughter);color:white;border-color:var(--daughter);box-shadow:0 4px 16px rgba(124,58,237,.4);transform:scale(1.04)}
-.rs.sel{background:var(--son);color:white;border-color:var(--son);box-shadow:0 4px 16px rgba(194,65,12,.4);transform:scale(1.04)}
+.rl{font-size:10px;font-weight:700;color:var(--text-low);white-space:nowrap;letter-spacing:.04em;padding:0 3px;flex-shrink:0}
+.rchip{display:flex;align-items:center;gap:5px;padding:6px 14px;border-radius:20px;border:2px solid transparent;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .18s;white-space:nowrap;flex-shrink:0}
+.rf{background:var(--father-lt);color:var(--father)}.rm{background:var(--mother-lt);color:var(--mother)}
+.rd{background:var(--daughter-lt);color:var(--daughter)}.rs{background:var(--son-lt);color:var(--son)}
+.rfac{background:var(--facilitator-lt);color:var(--facilitator)}
+.rf.sel{background:var(--father);color:white;border-color:var(--father);box-shadow:0 4px 14px rgba(37,99,235,.4);transform:scale(1.04)}
+.rm.sel{background:var(--mother);color:white;border-color:var(--mother);box-shadow:0 4px 14px rgba(190,24,93,.4);transform:scale(1.04)}
+.rd.sel{background:var(--daughter);color:white;border-color:var(--daughter);box-shadow:0 4px 14px rgba(124,58,237,.4);transform:scale(1.04)}
+.rs.sel{background:var(--son);color:white;border-color:var(--son);box-shadow:0 4px 14px rgba(194,65,12,.4);transform:scale(1.04)}
+.rfac.sel{background:var(--facilitator);color:white;border-color:var(--facilitator);box-shadow:0 4px 14px rgba(10,92,99,.4);transform:scale(1.04)}
 
-/* MESSAGES */
-.msgs{flex:1;overflow-y:auto;padding:20px 16px;display:flex;flex-direction:column;gap:16px;scroll-behavior:smooth}
-.msgs::-webkit-scrollbar{width:4px}
-.msgs::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
-.mrow{display:flex;gap:10px;animation:mIn .3s cubic-bezier(.34,1.56,.64,1) both}
-@keyframes mIn{from{opacity:0;transform:translateY(14px) scale(.95)}to{opacity:1;transform:none}}
-.mrow.aria-row{align-self:flex-start;max-width:88%}
-.mrow.user-row{align-self:flex-end;flex-direction:row-reverse;max-width:82%}
-.mav{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;font-size:16px;box-shadow:0 3px 10px rgba(0,0,0,.1)}
-.mav-a{background:linear-gradient(135deg,var(--teal),var(--gold));color:white;font-family:'Playfair Display',serif;font-size:14px;font-weight:700;font-style:italic}
-.mav-f{background:var(--father);color:white}
-.mav-m{background:var(--mother);color:white}
-.mav-d{background:var(--daughter);color:white}
-.mav-s{background:var(--son);color:white}
-.mc{display:flex;flex-direction:column;gap:4px}
-.mmeta{font-size:11px;font-weight:600;color:var(--text-low);padding:0 4px;display:flex;align-items:center;gap:5px}
+.msgs{flex:1;overflow-y:auto;padding:16px 14px;display:flex;flex-direction:column;gap:14px;scroll-behavior:smooth}
+.msgs::-webkit-scrollbar{width:4px}.msgs::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+.mrow{display:flex;gap:8px;animation:mIn .3s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes mIn{from{opacity:0;transform:translateY(12px) scale(.96)}to{opacity:1;transform:none}}
+.mrow.aria-row{align-self:flex-start;max-width:88%}.mrow.user-row{align-self:flex-end;flex-direction:row-reverse;max-width:82%}
+.mav{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;font-size:15px;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.mav-a{background:linear-gradient(135deg,var(--teal),var(--gold));color:white;font-family:'Playfair Display',serif;font-size:13px;font-weight:700;font-style:italic}
+.mav-f{background:var(--father);color:white}.mav-m{background:var(--mother);color:white}
+.mav-d{background:var(--daughter);color:white}.mav-s{background:var(--son);color:white}
+.mav-fac{background:var(--facilitator);color:white}
+.mc{display:flex;flex-direction:column;gap:3px}
+.mmeta{font-size:10px;font-weight:600;color:var(--text-low);padding:0 3px;display:flex;align-items:center;gap:4px}
 .user-row .mmeta{justify-content:flex-end}
-.mb{padding:12px 16px;border-radius:18px;font-size:14px;line-height:1.68;color:var(--text);word-break:break-word}
-.mb-a{background:white;border:1px solid var(--border);border-radius:4px 18px 18px 18px;box-shadow:0 3px 14px rgba(0,0,0,.06)}
-.mb-f{background:var(--father-lt);border:1.5px solid #BFDBFE;border-radius:18px 4px 18px 18px}
-.mb-m{background:var(--mother-lt);border:1.5px solid #FBCFE8;border-radius:18px 4px 18px 18px}
-.mb-d{background:var(--daughter-lt);border:1.5px solid #DDD6FE;border-radius:18px 4px 18px 18px}
-.mb-s{background:var(--son-lt);border:1.5px solid #FED7AA;border-radius:18px 4px 18px 18px}
-.directed{display:inline-flex;align-items:center;gap:7px;margin-top:10px;padding:8px 14px;border-radius:11px;font-size:13px;font-weight:700;font-family:'Outfit',sans-serif;animation:dp 3s ease infinite}
-@keyframes dp{0%,100%{box-shadow:0 0 0 0 rgba(10,92,99,0)}60%{box-shadow:0 0 0 5px rgba(10,92,99,.1)}}
+.mb{padding:11px 15px;border-radius:17px;font-size:14px;line-height:1.65;color:var(--text);word-break:break-word}
+.mb-a{background:white;border:1px solid var(--border);border-radius:4px 17px 17px 17px;box-shadow:0 3px 12px rgba(0,0,0,.06)}
+.mb-f{background:var(--father-lt);border:1.5px solid #BFDBFE;border-radius:17px 4px 17px 17px}
+.mb-m{background:var(--mother-lt);border:1.5px solid #FBCFE8;border-radius:17px 4px 17px 17px}
+.mb-d{background:var(--daughter-lt);border:1.5px solid #DDD6FE;border-radius:17px 4px 17px 17px}
+.mb-s{background:var(--son-lt);border:1.5px solid #FED7AA;border-radius:17px 4px 17px 17px}
+.mb-fac{background:var(--facilitator-lt);border:1.5px solid #6EE7B7;border-radius:17px 4px 17px 17px}
+.directed{display:inline-flex;align-items:center;gap:6px;margin-top:9px;padding:7px 13px;border-radius:10px;font-size:12px;font-weight:700;font-family:'Outfit',sans-serif;animation:dp 3s ease infinite}
+@keyframes dp{0%,100%{box-shadow:0 0 0 0 rgba(10,92,99,0)}60%{box-shadow:0 0 0 4px rgba(10,92,99,.1)}}
 .dir-f{background:var(--father-lt);color:var(--father);border:1.5px solid #BFDBFE}
 .dir-m{background:var(--mother-lt);color:var(--mother);border:1.5px solid #FBCFE8}
 .dir-d{background:var(--daughter-lt);color:var(--daughter);border:1.5px solid #DDD6FE}
 .dir-s{background:var(--son-lt);color:var(--son);border:1.5px solid #FED7AA}
-.trow{display:flex;gap:10px;align-items:flex-end;animation:mIn .25s ease both}
-.tbub{background:white;border:1px solid var(--border);border-radius:4px 18px 18px 18px;padding:13px 17px;display:flex;gap:5px;align-items:center;box-shadow:0 3px 14px rgba(0,0,0,.06)}
+.trow{display:flex;gap:8px;align-items:flex-end;animation:mIn .25s ease both}
+.tbub{background:white;border:1px solid var(--border);border-radius:4px 17px 17px 17px;padding:12px 16px;display:flex;gap:5px;align-items:center;box-shadow:0 3px 12px rgba(0,0,0,.06)}
 .tdot{width:7px;height:7px;background:var(--sage);border-radius:50%;animation:td 1.3s infinite ease}
 .tdot:nth-child(2){animation-delay:.2s}.tdot:nth-child(3){animation-delay:.4s}
-@keyframes td{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-8px)}}
+@keyframes td{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-7px)}}
 
-/* INPUT */
-.cinput{background:white;border-top:1px solid var(--border);padding:10px 14px 16px;flex-shrink:0}
-.who-ind{font-size:11.5px;font-weight:600;color:var(--text-low);margin-bottom:6px;padding-left:2px;display:flex;align-items:center;gap:6px;transition:color .2s}
+.cinput{background:white;border-top:1px solid var(--border);padding:10px 12px 14px;flex-shrink:0}
+.who-ind{font-size:11px;font-weight:600;color:var(--text-low);margin-bottom:5px;padding-left:2px;display:flex;align-items:center;gap:5px}
 .irow{display:flex;gap:8px;align-items:flex-end}
-textarea{flex:1;border:2px solid var(--border);border-radius:14px;padding:11px 14px;font-family:'Outfit',sans-serif;font-size:14px;color:var(--text);background:var(--cream);resize:none;outline:none;min-height:46px;max-height:110px;line-height:1.5;transition:border-color .2s,box-shadow .2s}
-textarea:focus{background:white}
-textarea::placeholder{color:var(--text-low)}
+textarea{flex:1;border:2px solid var(--border);border-radius:13px;padding:10px 13px;font-family:'Outfit',sans-serif;font-size:14px;color:var(--text);background:var(--cream);resize:none;outline:none;min-height:44px;max-height:100px;line-height:1.5;transition:border-color .2s,box-shadow .2s}
+textarea:focus{background:white}textarea::placeholder{color:var(--text-low)}
 textarea.ta-f{border-color:var(--father);box-shadow:0 0 0 3px var(--father-lt)}
 textarea.ta-m{border-color:var(--mother);box-shadow:0 0 0 3px var(--mother-lt)}
 textarea.ta-d{border-color:var(--daughter);box-shadow:0 0 0 3px var(--daughter-lt)}
 textarea.ta-s{border-color:var(--son);box-shadow:0 0 0 3px var(--son-lt)}
-.sbtn{width:46px;height:46px;border-radius:14px;border:none;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;color:white;background:var(--text-low)}
-.sbtn:hover:not(:disabled){transform:scale(1.08)}
-.sbtn:disabled{opacity:.35;cursor:not-allowed}
+textarea.ta-fac{border-color:var(--facilitator);box-shadow:0 0 0 3px var(--facilitator-lt)}
+.sbtn{width:44px;height:44px;border-radius:13px;border:none;cursor:pointer;font-size:17px;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;color:white;background:var(--text-low)}
+.sbtn:hover:not(:disabled){transform:scale(1.07)}.sbtn:disabled{opacity:.35;cursor:not-allowed}
 .sbtn.sbf{background:linear-gradient(135deg,var(--father),#60A5FA);box-shadow:0 4px 14px rgba(37,99,235,.4)}
 .sbtn.sbm{background:linear-gradient(135deg,var(--mother),#F472B6);box-shadow:0 4px 14px rgba(190,24,93,.4)}
 .sbtn.sbd{background:linear-gradient(135deg,var(--daughter),#A78BFA);box-shadow:0 4px 14px rgba(124,58,237,.4)}
 .sbtn.sbs{background:linear-gradient(135deg,var(--son),#FB923C);box-shadow:0 4px 14px rgba(194,65,12,.4)}
+.sbtn.sbfac{background:linear-gradient(135deg,var(--teal),var(--teal2));box-shadow:0 4px 14px rgba(10,92,99,.4)}
 
-/* TRAINING DRAWER */
+/* msg edit/delete */
+.msg-actions{display:none;gap:4px;margin-top:4px;justify-content:flex-end}
+.mrow:hover .msg-actions{display:flex}
+.mact-btn{width:24px;height:24px;border:1px solid var(--border);border-radius:6px;background:white;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.mact-btn:hover{background:var(--cream);transform:scale(1.1)}
+.mact-del:hover{background:#FEF2F2;border-color:#FCA5A5}
+
+/* ── TRAINING DRAWER ── */
 .train-ov{position:fixed;inset:0;background:rgba(26,31,58,.4);backdrop-filter:blur(4px);z-index:500;display:none;animation:fadeIn .2s ease}
 .train-ov.open{display:block}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 .train-dr{position:fixed;top:0;right:0;bottom:0;width:min(480px,100vw);background:var(--cream);z-index:501;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .35s cubic-bezier(.22,1,.36,1);box-shadow:-20px 0 60px rgba(0,0,0,.15)}
 .train-dr.open{transform:translateX(0)}
-.dr-top{background:linear-gradient(135deg,var(--navy),#0D2A4A);padding:20px 20px 16px;flex-shrink:0;position:relative;overflow:hidden}
+.dr-top{background:linear-gradient(135deg,var(--navy),#0D2A4A);padding:18px 18px 14px;flex-shrink:0;position:relative;overflow:hidden}
 .dr-top::after{content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;background:radial-gradient(circle,rgba(201,150,58,.3),transparent 60%);border-radius:50%}
-.dr-close{position:absolute;top:16px;right:16px;width:32px;height:32px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:8px;cursor:pointer;color:white;font-size:18px;display:flex;align-items:center;justify-content:center;transition:all .15s;z-index:1}
+.dr-close{position:absolute;top:14px;right:14px;width:30px;height:30px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:7px;cursor:pointer;color:white;font-size:17px;display:flex;align-items:center;justify-content:center;transition:all .15s;z-index:1}
 .dr-close:hover{background:rgba(255,255,255,.2)}
-.dr-top h2{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:white;margin-bottom:4px;position:relative;z-index:1}
-.dr-top p{font-size:12px;color:rgba(255,255,255,.5);position:relative;z-index:1;line-height:1.5}
+.dr-top h2{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:white;margin-bottom:3px;position:relative;z-index:1}
+.dr-top p{font-size:11px;color:rgba(255,255,255,.5);position:relative;z-index:1;line-height:1.5}
+.dr-sess-name{display:inline-block;margin-top:6px;background:rgba(201,150,58,.2);border:1px solid rgba(201,150,58,.35);border-radius:20px;padding:3px 11px;font-size:11px;font-weight:700;color:var(--gold2);position:relative;z-index:1}
 .ttabs{display:flex;background:white;border-bottom:1px solid var(--border);flex-shrink:0;overflow-x:auto;scrollbar-width:none}
 .ttabs::-webkit-scrollbar{display:none}
-.ttab{flex:1;padding:12px 8px;text-align:center;font-size:11.5px;font-weight:700;color:var(--text-low);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;min-width:80px}
-.ttab.on{color:var(--teal);border-color:var(--teal)}
-.ttab:hover:not(.on){color:var(--text-mid)}
-.dr-body{flex:1;overflow-y:auto;padding:20px}
-.tpanel{display:none}
-.tpanel.on{display:block}
-.tr-field{margin-bottom:18px}
-.tr-field label{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700;color:var(--text-mid);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px}
-.tr-field textarea,.tr-field input{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:11px 13px;font-family:'Outfit',sans-serif;font-size:13.5px;color:var(--text);background:white;outline:none;resize:vertical;line-height:1.6;transition:border-color .2s;min-height:80px;max-height:200px}
+.ttab{flex:1;padding:11px 6px;text-align:center;font-size:11px;font-weight:700;color:var(--text-low);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;min-width:72px}
+.ttab.on{color:var(--teal);border-color:var(--teal)}.ttab:hover:not(.on){color:var(--text-mid)}
+.dr-body{flex:1;overflow-y:auto;padding:18px}
+.tpanel{display:none}.tpanel.on{display:block}
+.tr-field{margin-bottom:16px}
+.tr-field label{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--text-mid);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.tr-field textarea,.tr-field input{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;font-family:'Outfit',sans-serif;font-size:13px;color:var(--text);background:white;outline:none;resize:vertical;line-height:1.6;transition:border-color .2s;min-height:70px;max-height:180px}
 .tr-field input{min-height:auto;resize:none}
 .tr-field textarea:focus,.tr-field input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(10,92,99,.08)}
-.tr-hint{font-size:11.5px;color:var(--text-low);margin-top:5px;line-height:1.5;font-style:italic}
-.tr-sect{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--navy);margin:20px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
-.tr-save{width:100%;padding:13px;background:linear-gradient(135deg,var(--teal),var(--teal2));color:white;border:none;border-radius:12px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;margin-top:6px;box-shadow:0 6px 20px rgba(10,92,99,.25)}
-.tr-save:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(10,92,99,.35)}
-.tr-note{text-align:center;font-size:12px;color:var(--text-low);margin-top:8px}
-/* Training lock */
+.tr-hint{font-size:11px;color:var(--text-low);margin-top:4px;line-height:1.5;font-style:italic}
+.tr-sect{font-family:'Playfair Display',serif;font-size:14px;font-weight:700;color:var(--navy);margin:18px 0 11px;padding-bottom:7px;border-bottom:1px solid var(--border)}
+.tr-save{width:100%;padding:12px;background:linear-gradient(135deg,var(--teal),var(--teal2));color:white;border:none;border-radius:11px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;margin-top:6px;box-shadow:0 6px 18px rgba(10,92,99,.25)}
+.tr-save:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(10,92,99,.35)}
+.tr-note{text-align:center;font-size:11px;color:var(--text-low);margin-top:7px}
 .tr-field.locked textarea,.tr-field.locked input{background:#F8F9FA;color:var(--text-mid);cursor:not-allowed;border-color:var(--border)}
-.tr-field.locked label{color:var(--text-low)}
-.lock-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
+.lock-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
 .lock-row label{margin-bottom:0}
-.edit-btn{padding:4px 10px;background:var(--gold-lt);border:1px solid rgba(201,150,58,.4);border-radius:7px;font-size:11px;font-weight:700;color:var(--gold);cursor:pointer;transition:all .15s;font-family:'Outfit',sans-serif}
+.edit-btn{padding:3px 9px;background:var(--gold-lt);border:1px solid rgba(201,150,58,.4);border-radius:6px;font-size:10px;font-weight:700;color:var(--gold);cursor:pointer;transition:all .15s;font-family:'Outfit',sans-serif}
 .edit-btn:hover{background:var(--gold);color:white}
-.lock-icon{font-size:12px;color:var(--text-low);margin-left:4px}
+.master-import-btn{width:100%;padding:10px;background:var(--sage-lt);border:1.5px solid var(--sage);border-radius:10px;color:var(--sage);font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:14px;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:7px}
+.master-import-btn:hover{background:var(--sage);color:white}
 
-
-/* MODALS */
+/* ── FACILITATOR CREATE SESSION MODAL ── */
 .modal-ov{position:fixed;inset:0;background:rgba(26,31,58,.5);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px;animation:fadeIn .2s ease}
-.modal-c{background:white;border-radius:24px;padding:32px;max-width:400px;width:100%;box-shadow:0 30px 80px rgba(26,31,58,.25);animation:sUp .3s cubic-bezier(.34,1.56,.64,1)}
-@keyframes sUp{from{opacity:0;transform:translateY(24px) scale(.94)}to{opacity:1;transform:none}}
-.modal-ic{font-size:40px;text-align:center;margin-bottom:14px}
-.modal-c h3{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--navy);text-align:center;margin-bottom:8px}
-.modal-c p{font-size:13.5px;color:var(--text-mid);text-align:center;margin-bottom:20px;line-height:1.6}
-.modal-inp{width:100%;border:2px solid var(--border);border-radius:12px;padding:12px 15px;font-family:'Outfit',sans-serif;font-size:14.5px;color:var(--text);background:var(--cream);outline:none;margin-bottom:16px;transition:border-color .2s}
+.modal-c{background:white;border-radius:22px;padding:28px;max-width:460px;width:100%;box-shadow:0 30px 80px rgba(26,31,58,.25);animation:sUp .3s cubic-bezier(.34,1.56,.64,1);max-height:90vh;overflow-y:auto}
+@keyframes sUp{from{opacity:0;transform:translateY(20px) scale(.94)}to{opacity:1;transform:none}}
+.modal-ic{font-size:36px;text-align:center;margin-bottom:12px}
+.modal-c h3{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--navy);text-align:center;margin-bottom:6px}
+.modal-c p{font-size:13px;color:var(--text-mid);text-align:center;margin-bottom:20px;line-height:1.6}
+.modal-inp{width:100%;border:2px solid var(--border);border-radius:11px;padding:11px 14px;font-family:'Outfit',sans-serif;font-size:14px;color:var(--text);background:var(--cream);outline:none;margin-bottom:12px;transition:border-color .2s}
 .modal-inp:focus{border-color:var(--teal);background:white}
-.modal-btns{display:flex;gap:10px}
-.mb-cancel{flex:1;padding:12px;border:2px solid var(--border);border-radius:12px;background:var(--cream);color:var(--text-mid);font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .15s}
+.modal-label{display:block;font-size:11px;font-weight:700;color:var(--text-mid);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.pw-6-input{width:100%;border:2px solid var(--border);border-radius:11px;padding:12px 14px;font-family:'Outfit',sans-serif;font-size:22px;letter-spacing:10px;text-align:center;color:var(--text);background:var(--cream);outline:none;margin-bottom:12px;transition:all .2s}
+.pw-6-input:focus{border-color:var(--teal);background:white;box-shadow:0 0 0 3px var(--teal-lt)}
+.roles-picker{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.role-pick-chip{padding:8px 16px;border-radius:20px;border:2px solid var(--border);background:var(--cream);font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:5px}
+.role-pick-chip.selected-f{background:var(--father);color:white;border-color:var(--father)}
+.role-pick-chip.selected-m{background:var(--mother);color:white;border-color:var(--mother)}
+.role-pick-chip.selected-d{background:var(--daughter);color:white;border-color:var(--daughter)}
+.role-pick-chip.selected-s{background:var(--son);color:white;border-color:var(--son)}
+.modal-btns{display:flex;gap:9px;margin-top:4px}
+.mb-cancel{flex:1;padding:11px;border:2px solid var(--border);border-radius:11px;background:var(--cream);color:var(--text-mid);font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s}
 .mb-cancel:hover{border-color:#FCA5A5;color:#DC2626;background:#FEF2F2}
-.mb-confirm{flex:2;padding:12px;background:linear-gradient(135deg,var(--teal),var(--teal2));color:white;border:none;border-radius:12px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .15s}
-.mb-confirm:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(10,92,99,.35)}
+.mb-confirm{flex:2;padding:11px;background:linear-gradient(135deg,var(--teal),var(--teal2));color:white;border:none;border-radius:11px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s}
+.mb-confirm:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(10,92,99,.35)}
 .mb-confirm.red{background:linear-gradient(135deg,#DC2626,#F87171)}
 
-/* TOASTS */
-.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);padding:11px 22px;border-radius:14px;font-family:'Outfit',sans-serif;font-size:13.5px;font-weight:600;z-index:9999;animation:tIn .3s ease;white-space:nowrap}
+/* ── COLD START ── */
+.cold-banner{position:fixed;top:0;left:0;right:0;background:linear-gradient(135deg,#1A1F3A,#0A5C63);color:white;text-align:center;padding:13px;font-size:13px;font-weight:500;z-index:9999;display:none;box-shadow:0 4px 20px rgba(0,0,0,.3)}
+.cold-banner.show{display:block}
+.cold-spinner{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:7px}
+
+/* ── TOASTS & FLASH ── */
+.toast{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);padding:10px 20px;border-radius:13px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;z-index:9999;animation:tIn .3s ease;white-space:nowrap}
 @keyframes tIn{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 .t-err{background:#DC2626;color:white;box-shadow:0 8px 24px rgba(220,38,38,.35)}
 .t-ok{background:var(--teal);color:white;box-shadow:0 8px 24px rgba(10,92,99,.35)}
-
-.cold-banner{
-  position:fixed;top:0;left:0;right:0;
-  background:linear-gradient(135deg,#1A1F3A,#0A5C63);
-  color:white;text-align:center;
-  padding:14px;font-size:14px;font-weight:500;
-  z-index:9999;display:none;
-  box-shadow:0 4px 20px rgba(0,0,0,.3);
-}
-.cold-banner.show{display:block}
-.cold-spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:8px}
-
-/* Session delete button */
-.sc-del-btn{
-  padding:8px 12px;background:none;border:none;
-  cursor:pointer;font-size:16px;opacity:0;
-  transition:opacity .2s;flex-shrink:0;
-  border-radius:0 18px 18px 0;
-}
-.sc:hover .sc-del-btn{opacity:1;}
-.sc-del-btn:hover{background:#FEF2F2;}
-
-/* Message actions */
-.msg-actions{
-  display:none;
-  gap:4px;margin-top:4px;
-  justify-content:flex-end;
-}
-.mrow:hover .msg-actions{display:flex;}
-.mrow.user-row:hover .msg-actions{display:flex;}
-
-.mact-btn{
-  width:26px;height:26px;
-  border:1px solid var(--border);border-radius:7px;
-  background:white;cursor:pointer;
-  font-size:12px;display:flex;align-items:center;justify-content:center;
-  transition:all .15s;
-}
-.mact-btn:hover{background:var(--cream);transform:scale(1.1);}
-.mact-del:hover{background:#FEF2F2;border-color:#FCA5A5;}
-
-/* Session header action - clear all */
-.btn-clear-all{
-  padding:7px 13px;border:1.5px solid #FCA5A5;border-radius:9px;
-  background:#FEF2F2;color:#DC2626;
-  font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;
-  cursor:pointer;transition:all .15s;
-}
-.btn-clear-all:hover{background:#DC2626;color:white;}
-
 .flash-ov{position:fixed;inset:0;pointer-events:none;z-index:9999;animation:fFade .7s ease forwards}
 @keyframes fFade{0%{background:rgba(10,92,99,.12)}100%{background:rgba(10,92,99,0)}}
-@media(max-width:768px){.hero-content{grid-template-columns:1fr;gap:32px;padding:32px 24px 48px}.hero-right{display:none}.hero-nav{padding:16px 24px}.about{padding:48px 24px}.s-body{padding:20px 16px}.s-header{padding:0 16px}.chat-acts .cbtn span{display:none}}
+
+@media(max-width:768px){
+  .hero-content{grid-template-columns:1fr;gap:32px;padding:32px 24px 48px}
+  .hero-right{display:none}.hero-nav{padding:16px 24px}
+  .about{padding:48px 24px}.fac-body{padding:20px 16px}
+  .chat-acts .cbtn span{display:none}
+}
 </style>
 </head>
 <body>
 
-
-<!-- Cold start banner -->
+<!-- COLD START BANNER -->
 <div class="cold-banner" id="coldBanner">
-  <span class="cold-spinner"></span>
-  Dr. Aria is waking up — this takes about 30 seconds on first load. Please wait...
+  <span class="cold-spinner"></span>Dr. Aria is waking up — please wait about 30 seconds...
 </div>
-<!-- HERO -->
+
+<!-- ══ HERO ══ -->
 <div id="heroScreen" class="screen active">
   <div class="hero-bg"></div>
   <div class="particles" id="particles"></div>
-  <div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div>
+  <div class="orb o1"></div><div class="orb o2"></div>
 
   <nav class="hero-nav">
     <div class="nav-brand">
       <div class="nav-av">A</div>
       <div class="nav-text"><h1>Dr. Aria</h1><p>Family Counseling Platform</p></div>
     </div>
-    <div class="nav-actions">
+    <div style="display:flex;gap:10px">
       <button class="btn-ghost" onclick="showAbout()">About Dr. Aria</button>
-      <button class="btn-gold" onclick="goToApp()">Start Session →</button>
+      <button class="btn-gold" onclick="enterApp()">Enter →</button>
     </div>
   </nav>
 
@@ -396,20 +398,19 @@ textarea.ta-s{border-color:var(--son);box-shadow:0 0 0 3px var(--son-lt)}
     <div class="hero-left">
       <div class="eyebrow"><span class="eyebrow-dot"></span>AI-Powered Family Counseling</div>
       <h2 class="hero-h2">Healing<br>Families,<br><em>One Conversation</em><br>at a Time</h2>
-      <p class="hero-p">Dr. Aria brings <strong>20+ years of counseling wisdom</strong> to your family — a safe, neutral, compassionate space where every voice matters and every story deserves to be heard.</p>
+      <p class="hero-p">Dr. Aria brings <strong>20+ years of counseling wisdom</strong> to your family — a safe, neutral, compassionate space where every voice matters.</p>
       <div class="hero-btns">
-        <button class="btn-hp" onclick="goToApp()">✦ Begin Your Session</button>
-        <button class="btn-hs" onclick="showAbout()">Learn About Dr. Aria</button>
+        <button class="btn-hp" onclick="enterApp()">✦ Enter Session</button>
+        <button class="btn-hs" onclick="showAbout()">About Dr. Aria</button>
       </div>
       <div class="stats">
         <div><div class="stat-n">20+</div><div class="stat-l">Years Experience</div></div>
-        <div><div class="stat-n">4</div><div class="stat-l">Family Roles</div></div>
+        <div><div class="stat-n">5</div><div class="stat-l">Roles Supported</div></div>
         <div><div class="stat-n">∞</div><div class="stat-l">Sessions Possible</div></div>
       </div>
     </div>
     <div class="hero-right">
       <div class="portrait">
-        <div class="p-glow"></div>
         <div class="p-av">A</div>
         <div class="p-name">Dr. Aria</div>
         <div class="p-title">Ph.D · Family Counselor · Psychologist</div>
@@ -424,79 +425,71 @@ textarea.ta-s{border-color:var(--son);box-shadow:0 0 0 3px var(--son-lt)}
     </div>
   </div>
 
-  <!-- ABOUT -->
   <div id="aboutSection" class="about">
     <div class="about-inner">
       <div class="s-eye">Meet Dr. Aria</div>
       <h2 class="s-title">A Counselor Who Truly <em>Listens</em></h2>
-      <p class="s-desc">Dr. Aria is not just an AI — she is a carefully crafted therapeutic presence, trained in the most effective family counseling methodologies. She holds space for every family member with equal compassion, helping you move from conflict to connection.</p>
+      <p class="s-desc">Carefully crafted therapeutic presence trained in the most effective family counseling methodologies. She holds space for every family member with equal compassion.</p>
       <div class="phil">
-        <p class="phil-q">"In every family conflict, there are no villains — only people who love each other and haven't yet found the <strong>language to say it</strong>. My role is to be that bridge, that translator of hearts."</p>
+        <p class="phil-q">"In every family conflict, there are no villains — only people who love each other and haven't yet found the <strong>language to say it</strong>. My role is to be that bridge."</p>
         <p class="phil-a">— Dr. Aria's Core Philosophy</p>
       </div>
-      <div class="s-eye" style="margin-bottom:16px">Specializations</div>
       <div class="spec-grid">
-        <div class="spec-card" style="--cc:var(--teal)"><div class="spec-icon" style="background:var(--teal-lt)">🧠</div><h3>Family Systems Therapy</h3><p>Understanding each member as part of an interconnected whole. Identifying patterns, not just symptoms.</p></div>
-        <div class="spec-card" style="--cc:var(--gold)"><div class="spec-icon" style="background:var(--gold-lt)">💬</div><h3>Non-Violent Communication</h3><p>Transforming accusation into expression. Teaching the language of needs, not demands.</p></div>
-        <div class="spec-card" style="--cc:var(--coral)"><div class="spec-icon" style="background:var(--coral-lt)">⚖️</div><h3>Dispute Resolution</h3><p>Moving from entrenched positions to shared interests. Finding the agreement beneath the argument.</p></div>
-        <div class="spec-card" style="--cc:var(--daughter)"><div class="spec-icon" style="background:var(--daughter-lt)">🔮</div><h3>Intergenerational Therapy</h3><p>Bridging the gap between generations. Respecting heritage while embracing individual growth.</p></div>
-        <div class="spec-card" style="--cc:var(--sage)"><div class="spec-icon" style="background:var(--sage-lt)">🌱</div><h3>Adolescent Psychology</h3><p>Navigating the turbulent years. Understanding rebellion as identity formation, not defiance.</p></div>
-        <div class="spec-card" style="--cc:var(--mother)"><div class="spec-icon" style="background:var(--mother-lt)">❤️</div><h3>Emotional Intelligence</h3><p>Building the capacity to feel, name, and respond to emotions — your own and each other's.</p></div>
-      </div>
-      <div class="s-eye" style="margin-bottom:16px">The Session Journey</div>
-      <div class="approach-grid">
-        <div class="a-step"><div class="a-num">1</div><h4>Safety First</h4><p>Establish a no-blame zone where every voice is equal</p></div>
-        <div class="a-step"><div class="a-num">2</div><h4>Be Heard</h4><p>Each member shares their experience without interruption</p></div>
-        <div class="a-step"><div class="a-num">3</div><h4>Beneath the Surface</h4><p>Uncovering the real feelings beneath the words</p></div>
-        <div class="a-step"><div class="a-num">4</div><h4>Empathy Bridge</h4><p>Seeing the situation through each other's eyes</p></div>
-        <div class="a-step"><div class="a-num">5</div><h4>Resolution Path</h4><p>Collaborative agreements — small, realistic, meaningful</p></div>
-        <div class="a-step"><div class="a-num">6</div><h4>Daily Practice</h4><p>Patterns and rituals to sustain the change</p></div>
+        <div class="spec-card" style="--cc:var(--teal)"><div class="spec-icon" style="background:var(--teal-lt)">🧠</div><h3>Family Systems Therapy</h3><p>Identifying patterns across the whole family, not just individual symptoms.</p></div>
+        <div class="spec-card" style="--cc:var(--gold)"><div class="spec-icon" style="background:var(--gold-lt)">💬</div><h3>Non-Violent Communication</h3><p>Transforming accusation into expression. Teaching the language of needs.</p></div>
+        <div class="spec-card" style="--cc:var(--coral)"><div class="spec-icon" style="background:var(--coral-lt)">⚖️</div><h3>Dispute Resolution</h3><p>Moving from entrenched positions to shared interests and agreements.</p></div>
+        <div class="spec-card" style="--cc:var(--daughter)"><div class="spec-icon" style="background:var(--daughter-lt)">🔮</div><h3>Intergenerational Therapy</h3><p>Bridging generation gaps. Respecting heritage while embracing growth.</p></div>
+        <div class="spec-card" style="--cc:var(--sage)"><div class="spec-icon" style="background:var(--sage-lt)">🌱</div><h3>Adolescent Psychology</h3><p>Understanding rebellion as identity formation, not defiance.</p></div>
+        <div class="spec-card" style="--cc:var(--mother)"><div class="spec-icon" style="background:var(--mother-lt)">❤️</div><h3>Emotional Intelligence</h3><p>Building capacity to feel, name, and respond to emotions constructively.</p></div>
       </div>
       <div class="cta-banner">
         <h3>Your Family Deserves This Space</h3>
         <p>Private · Compassionate · Available whenever you need it</p>
-        <button class="btn-begin" onclick="goToApp()">✦ Start Your First Session</button>
+        <button class="btn-begin" onclick="enterApp()">✦ Enter Session</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- CONFIG -->
-<div id="configScreen" class="screen">
-  <div class="cfg-wrap">
-    <button class="cfg-back" onclick="showScreen('heroScreen')">← Back to Home</button>
-    <div class="cfg-top">
-      <div class="cfg-av">A</div>
-      <h2>Connect Dr. Aria</h2>
-      <p>One-time setup · Saved to this device · Never shared</p>
+<!-- ══ FACILITATOR PORTAL ══ -->
+<div id="facilitatorScreen" class="screen">
+  <div class="fac-header">
+    <div class="fac-av">F</div>
+    <div class="fac-title">
+      <h1>Facilitator Portal</h1>
+      <p>Session management · Password protected</p>
     </div>
-    <div class="cfg-body">
-      <div class="cfg-notice">✅ &nbsp;Firebase pre-loaded. Just enter your Anthropic API key — the local server handles the rest.</div>
-
-      <div class="fld">
-        <label>🔑 Anthropic API Key</label>
-        <input id="anthropicKey" type="password" placeholder="sk-ant-api03-..." autocomplete="off"/>
-        <div class="fld-hint">From console.anthropic.com/settings/keys · Saved locally on your machine only · Never sent anywhere except Anthropic</div>
-      </div>
-
-      <div style="background:#EEF2FF;border:1px solid #A5B4FC;border-radius:12px;padding:13px 15px;margin-bottom:16px;font-size:12.5px;color:#3730A3;line-height:1.8">
-        <strong>⚡ How this works now:</strong><br>
-        You opened this app via the <strong>local server</strong> (localhost:7777).<br>
-        API calls go: <strong>App → your laptop → Anthropic</strong><br>
-        No Cloudflare, no proxies, no Kaspersky issues. ✅
-      </div>
-
-      <input id="fb_apiKey" type="hidden" value="AIzaSyD4kOB8-gubX-zk-JrktLKkC8SC__zjo3g"/>
-      <input id="fb_authDomain" type="hidden" value="dr-aria-super-specialist.firebaseapp.com"/>
-      <input id="fb_databaseURL" type="hidden" value="https://dr-aria-super-specialist-default-rtdb.firebaseio.com"/>
-      <input id="fb_projectId" type="hidden" value="dr-aria-super-specialist"/>
-      <input id="fb_appId" type="hidden" value="1:664623654441:web:b4b12906b6a64dbf801e38"/>
-      <button class="btn-connect" onclick="saveConfig()">✦ Connect &amp; Enter</button>
+    <div class="fac-badge"><span class="fac-dot"></span>Master Control</div>
+  </div>
+  <div class="fac-body">
+    <div class="fac-actions">
+      <button class="btn-fac-new" onclick="openCreateSessionModal()">＋ New Session</button>
+      <button class="btn-fac-train" onclick="openMasterTraining()">🎯 Master Train Dr. Aria</button>
+      <button class="btn-fac-settings" onclick="changeMasterPassword()">🔐 Change Password</button>
+      <button class="btn-fac-danger" onclick="deleteAllSessions()">🗑️ Clear All Sessions</button>
+      <button class="btn-outline" onclick="showScreen('sessionScreen')" style="margin-left:auto">← Exit Portal</button>
     </div>
+    <div id="facSessionsList"><div class="sess-empty"><div class="sess-empty-art">📋</div><h3>No sessions yet</h3></div></div>
   </div>
 </div>
 
-<!-- SESSIONS -->
+<!-- ══ SESSION PASSWORD SCREEN ══ -->
+<div id="sessionPasswordScreen" class="screen">
+  <div class="pw-card">
+    <div class="pw-av">A</div>
+    <h2 id="pwSessionName">Session</h2>
+    <p id="pwSessionDesc">Enter the session password shared by your Facilitator to join.</p>
+    <div class="pw-roles" id="pwRolesDisplay"></div>
+    <input class="pw-input" id="pwInput" type="password" maxlength="6" placeholder="• • • • • •"
+           oninput="this.value=this.value.replace(/[^0-9]/g,'')"
+           onkeydown="if(event.key==='Enter')submitSessionPassword()"/>
+    <div class="pw-hint">6-digit password · provided by Facilitator</div>
+    <button class="btn-pw-enter" onclick="submitSessionPassword()">🔓 Enter Session</button>
+    <br><button class="btn-pw-back" onclick="showScreen('sessionScreen')">← Back to sessions</button>
+  </div>
+</div>
+
+<!-- ══ SESSIONS LIST (Member view) ══ -->
 <div id="sessionScreen" class="screen">
   <div class="s-header">
     <div class="s-brand">
@@ -505,41 +498,33 @@ textarea.ta-s{border-color:var(--son);box-shadow:0 0 0 3px var(--son-lt)}
     </div>
     <div class="s-hact">
       <button class="btn-outline" onclick="showScreen('heroScreen')">About</button>
-      <button class="btn-clear-all" onclick="deleteAllSessions()">🗑️ Clear All</button>
-      <button class="btn-outline" onclick="resetPassword()" title="Father: change password">🔐</button>
-      <button class="btn-new" onclick="openNewModal()">✦ New Session</button>
+      <button class="btn-fac-login" onclick="facilitatorLogin()">🔐 Facilitator</button>
     </div>
   </div>
   <div class="s-body" id="sessionsList">
     <div class="s-empty">
       <div class="s-empty-art">💬</div>
-      <h3>Begin Your Journey</h3>
-      <p>Start your first family counseling session. Dr. Aria is ready to guide you.</p>
+      <h3>No sessions available</h3>
+      <p>Ask your Facilitator to create a session for your family.</p>
     </div>
   </div>
 </div>
 
-<!-- CHAT -->
+<!-- ══ CHAT SCREEN ══ -->
 <div id="chatScreen" class="screen">
   <div class="chat-top">
     <button class="c-back" onclick="goToSessions()">←</button>
     <div class="c-av">A</div>
     <div class="c-title">
       <h2 id="chatTitle">Session</h2>
-      <p><span class="chat-ld"></span><span id="chatSub">Live · syncing across devices</span></p>
+      <p><span class="chat-ld"></span><span id="chatSub">Live · syncing</span></p>
     </div>
     <div class="chat-acts">
-      <button class="cbtn train" onclick="openTraining()">🎯 <span>Train Dr. Aria</span><span id="trainBadge" style="display:none" class="t-badge">✓ Active</span></button>
-      <button class="cbtn" onclick="openNewModal()">＋ <span>New</span></button>
-      <button class="cbtn danger" onclick="confirmReset()">↺ <span>Reset</span></button>
+      <button class="cbtn train" onclick="openTraining()">🎯 <span>Train Dr. Aria</span><span id="trainBadge" style="display:none" class="t-badge">✓</span></button>
     </div>
   </div>
-  <div class="role-bar">
+  <div class="role-bar" id="roleBar">
     <span class="rl">I am →</span>
-    <div class="rchip rf" id="chip-f" onclick="selectRole('father')">🧔 Father</div>
-    <div class="rchip rm" id="chip-m" onclick="selectRole('mother')">👩 Mother</div>
-    <div class="rchip rd" id="chip-d" onclick="selectRole('daughter')">👧 Daughter</div>
-    <div class="rchip rs" id="chip-s" onclick="selectRole('son')">👦 Son</div>
   </div>
   <div class="msgs" id="msgs"></div>
   <div class="cinput">
@@ -551,13 +536,14 @@ textarea.ta-s{border-color:var(--son);box-shadow:0 0 0 3px var(--son-lt)}
   </div>
 </div>
 
-<!-- TRAINING DRAWER -->
+<!-- ══ TRAINING DRAWER ══ -->
 <div class="train-ov" id="trainOv" onclick="closeTrainOut(event)">
   <div class="train-dr" id="trainDr">
     <div class="dr-top">
       <button class="dr-close" onclick="closeTraining()">×</button>
       <h2>🎯 Train Dr. Aria</h2>
-      <p>Provide context and instructions to steer Dr. Aria. Changes take effect on the next message — use this before or during sessions.</p>
+      <p>Session-specific context. Changes apply from next message.</p>
+      <div class="dr-sess-name" id="trainSessLabel">Loading...</div>
     </div>
     <div class="ttabs">
       <div class="ttab on" onclick="switchTab(0)" id="tt0">👨‍👩‍👧‍👦 Family</div>
@@ -567,263 +553,548 @@ textarea.ta-s{border-color:var(--son);box-shadow:0 0 0 3px var(--son-lt)}
     </div>
     <div class="dr-body">
       <div class="tpanel on" id="tp0">
-        <div class="tr-sect">👨‍👩‍👧‍👦 Family Member Profiles</div>
-        <p style="font-size:13px;color:var(--text-low);margin-bottom:16px;line-height:1.6">Tell Dr. Aria about each family member — names, personalities, backgrounds. She will use this to personalize her responses.</p>
-        <div class="tr-field"><label>🧔 Father's Name &amp; Profile</label><textarea id="tr_father" placeholder="e.g. Ramesh, 52, software engineer. Very traditional. Expresses love through providing, not words. Anxious about financial security..."></textarea></div>
-        <div class="tr-field"><label>👩 Mother's Name &amp; Profile</label><textarea id="tr_mother" placeholder="e.g. Sunita, 48, homemaker. Peacekeeper. Avoids confrontation. Feels invisible in family decisions..."></textarea></div>
-        <div class="tr-field"><label>👧 Daughter's Name &amp; Profile</label><textarea id="tr_daughter" placeholder="e.g. Priya, 24, architect. Independent, creative. Feels her choices are questioned. Closest to mother..."></textarea></div>
-        <div class="tr-field"><label>👦 Son's Name &amp; Profile</label><textarea id="tr_son" placeholder="e.g. Arjun, 21, engineering student who wants to be a musician. Shuts down during arguments..."></textarea></div>
+        <button class="master-import-btn" onclick="importFromMaster()">⬇️ Import from Master Training</button>
+        <div class="tr-sect">👨‍👩‍👧‍👦 Family Profiles</div>
+        <div class="tr-field"><label>🧔 Father</label><textarea id="tr_father" placeholder="Name, age, personality, background..."></textarea></div>
+        <div class="tr-field"><label>👩 Mother</label><textarea id="tr_mother" placeholder="Name, age, personality, background..."></textarea></div>
+        <div class="tr-field"><label>👧 Daughter</label><textarea id="tr_daughter" placeholder="Name, age, personality..."></textarea></div>
+        <div class="tr-field"><label>👦 Son</label><textarea id="tr_son" placeholder="Name, age, personality..."></textarea></div>
       </div>
       <div class="tpanel" id="tp1">
-        <div class="tr-sect">🎯 Session Focus &amp; Goals</div>
-        <p style="font-size:13px;color:var(--text-low);margin-bottom:16px;line-height:1.6">What should Dr. Aria focus on? What outcomes do you want from this session?</p>
-        <div class="tr-field"><label>🎯 Primary Focus</label><textarea id="tr_focus" placeholder="e.g. Today focus on the son's decision to leave engineering. Father gave an ultimatum. Help them hear each other before it escalates..."></textarea></div>
-        <div class="tr-field"><label>✅ Desired Outcomes</label><textarea id="tr_outcomes" placeholder="e.g. 1) Father acknowledges son's feelings 2) Son understands father's fear is love 3) Agree on a 3-month trial period..."></textarea></div>
-        <div class="tr-field"><label>⚠️ Topics to Avoid or Handle Carefully</label><textarea id="tr_avoid" placeholder="e.g. Avoid the Diwali incident — too raw. Don't press mother to take sides yet..."></textarea></div>
-        <div class="tr-field"><label>⏱️ Session Urgency / Tone</label><input type="text" id="tr_urgency" placeholder="e.g. High urgency — son leaving home is a real possibility. Keep Dr. Aria direct but calm." /></div>
+        <div class="tr-sect">🎯 Session Focus</div>
+        <div class="tr-field"><label>🎯 Primary Focus</label><textarea id="tr_focus" placeholder="What should Dr. Aria focus on today?"></textarea></div>
+        <div class="tr-field"><label>✅ Desired Outcomes</label><textarea id="tr_outcomes" placeholder="What do you want to achieve?"></textarea></div>
+        <div class="tr-field"><label>⚠️ Topics to Avoid</label><textarea id="tr_avoid" placeholder="Sensitive topics to handle carefully..."></textarea></div>
+        <div class="tr-field"><label>⏱️ Urgency / Tone</label><input type="text" id="tr_urgency" placeholder="e.g. High urgency, keep Dr. Aria direct" /></div>
       </div>
       <div class="tpanel" id="tp2">
-        <div class="tr-sect">📋 Direct Instructions for Dr. Aria</div>
-        <p style="font-size:13px;color:var(--text-low);margin-bottom:16px;line-height:1.6">Write direct instructions — Dr. Aria will follow them. Update these mid-session anytime to steer the conversation.</p>
-        <div class="tr-field">
-          <label>📝 Behavioral Instructions</label>
-          <textarea id="tr_instructions" style="min-height:120px" placeholder="e.g. Be extra gentle with the son today — he's been having panic attacks. Ask the father to share a personal story about HIS dreams at 21. Ask the mother what she wanted to be before marriage..."></textarea>
-          <div class="tr-hint">Live instructions — Dr. Aria follows from the next message onwards</div>
-        </div>
-        <div class="tr-field"><label>🌡️ Tone Adjustment</label><input type="text" id="tr_tone" placeholder="e.g. More direct today. Push for commitments, not just feelings." /></div>
-        <div class="tr-field"><label>🌏 Cultural / Language Notes</label><textarea id="tr_culture" placeholder="e.g. Traditional South Indian Hindu family. Respect for elders is paramount. Don't suggest 'leaving home' as a solution. Reference family honor and long-term thinking..."></textarea></div>
-        <div class="tr-field"><label>🔁 Techniques to Use</label><input type="text" id="tr_techniques" placeholder="e.g. Empty chair technique. Ask father to speak as if son is 40 years old." /></div>
+        <div class="tr-sect">📋 Direct Instructions</div>
+        <div class="tr-field"><label>📝 Behavioral Instructions</label><textarea id="tr_instructions" style="min-height:100px" placeholder="Direct instructions Dr. Aria will follow..."></textarea><div class="tr-hint">Takes effect from next message</div></div>
+        <div class="tr-field"><label>🌡️ Tone Adjustment</label><input type="text" id="tr_tone" placeholder="e.g. More direct today. Push for commitments." /></div>
+        <div class="tr-field"><label>🌏 Cultural Notes</label><textarea id="tr_culture" placeholder="Cultural or religious context..."></textarea></div>
+        <div class="tr-field"><label>🔁 Techniques to Use</label><input type="text" id="tr_techniques" placeholder="e.g. Empty chair technique" /></div>
       </div>
       <div class="tpanel" id="tp3">
         <div class="tr-sect">📖 Background Context</div>
-        <p style="font-size:13px;color:var(--text-low);margin-bottom:16px;line-height:1.6">Give Dr. Aria the backstory — what's happened, what progress has been made, what's been tried.</p>
-        <div class="tr-field"><label>📅 Family Background</label><textarea id="tr_background" placeholder="e.g. Conflict began 8 months ago when Arjun failed 2 exams. Father withdrew financially. Mother has been mediating privately..."></textarea></div>
-        <div class="tr-field"><label>📝 Previous Session Summary</label><textarea id="tr_prev" placeholder="e.g. Last session: Father admitted he had dreams he gave up. Son cried. Good breakthrough. But father reverted next day. Mother expressed feeling trapped for the first time..."></textarea></div>
-        <div class="tr-field"><label>🌟 Strengths to Build On</label><textarea id="tr_strengths" placeholder="e.g. Family still eats dinner together. Father and son used to watch cricket — that connection exists. Mother is the emotional glue both trust..."></textarea></div>
+        <div class="tr-field"><label>📅 Family Background</label><textarea id="tr_background" placeholder="History and context of the conflict..."></textarea></div>
+        <div class="tr-field"><label>📝 Previous Session Summary</label><textarea id="tr_prev" placeholder="What happened in last session..."></textarea></div>
+        <div class="tr-field"><label>🌟 Strengths to Build On</label><textarea id="tr_strengths" placeholder="Positive anchors to leverage..."></textarea></div>
       </div>
-      <button class="tr-save" onclick="saveTraining()">✦ Save &amp; Apply to Session</button>
-      <p class="tr-note">Saved to this session · Takes effect on next message</p>
+      <button class="tr-save" onclick="saveTraining()">✦ Save Training for This Session</button>
+      <p class="tr-note" id="trNote">Saved to this session only</p>
     </div>
   </div>
 </div>
 
-<!-- MODALS -->
-<div id="newModal" class="modal-ov" style="display:none" onclick="closeModalOut(event,'newModal')">
+<!-- ══ MODALS ══ -->
+<!-- Create Session Modal -->
+<div id="createSessModal" class="modal-ov" style="display:none" onclick="closeModalOut(event,'createSessModal')">
   <div class="modal-c">
     <div class="modal-ic">🌱</div>
-    <h3>New Session</h3>
-    <p>Give this session a meaningful name. All previous sessions remain safely stored.</p>
-    <input class="modal-inp" id="sessNameInput" placeholder="e.g. Sunday Family Talk · April 2026" maxlength="60" onkeydown="if(event.key==='Enter')createSession()" />
+    <h3>Create New Session</h3>
+    <p>Configure the session for your family. Only the Facilitator can create sessions.</p>
+    <label class="modal-label">Session Name</label>
+    <input class="modal-inp" id="newSessName" placeholder="e.g. Sunday Family Talk · May 2026" maxlength="60"/>
+    <label class="modal-label">6-Digit Session Password</label>
+    <input class="pw-6-input" id="newSessPw" type="password" maxlength="6" placeholder="• • • • • •"
+           oninput="this.value=this.value.replace(/[^0-9]/g,'')" />
+    <div style="font-size:11px;color:var(--text-low);margin-bottom:14px;text-align:center">Share this password with participating members</div>
+    <label class="modal-label">Participating Roles</label>
+    <div class="roles-picker" id="rolesPicker">
+      <div class="role-pick-chip" data-role="father" onclick="toggleRolePick(this,'f')">🧔 Father</div>
+      <div class="role-pick-chip" data-role="mother" onclick="toggleRolePick(this,'m')">👩 Mother</div>
+      <div class="role-pick-chip" data-role="daughter" onclick="toggleRolePick(this,'d')">👧 Daughter</div>
+      <div class="role-pick-chip" data-role="son" onclick="toggleRolePick(this,'s')">👦 Son</div>
+    </div>
     <div class="modal-btns">
-      <button class="mb-cancel" onclick="closeModal('newModal')">Cancel</button>
-      <button class="mb-confirm" onclick="createSession()">✦ Begin Session</button>
+      <button class="mb-cancel" onclick="closeModal('createSessModal')">Cancel</button>
+      <button class="mb-confirm" onclick="createSession()">✦ Create Session</button>
     </div>
   </div>
 </div>
 
-<div id="resetModal" class="modal-ov" style="display:none">
+<!-- Edit Session Modal -->
+<div id="editSessModal" class="modal-ov" style="display:none" onclick="closeModalOut(event,'editSessModal')">
   <div class="modal-c">
-    <div class="modal-ic">⚠️</div>
-    <h3>Start Fresh?</h3>
-    <p>This will end the current session and begin a new one. Your current session is permanently saved and accessible anytime.</p>
+    <div class="modal-ic">✏️</div>
+    <h3>Edit Session</h3>
+    <input type="hidden" id="editSessId"/>
+    <label class="modal-label">Session Name</label>
+    <input class="modal-inp" id="editSessName" placeholder="Session name"/>
+    <label class="modal-label">Session Password (6 digits)</label>
+    <input class="pw-6-input" id="editSessPw" type="password" maxlength="6" placeholder="• • • • • •"
+           oninput="this.value=this.value.replace(/[^0-9]/g,'')"/>
+    <label class="modal-label">Participating Roles</label>
+    <div class="roles-picker" id="editRolesPicker">
+      <div class="role-pick-chip" data-role="father" onclick="toggleRolePickEdit(this,'f')">🧔 Father</div>
+      <div class="role-pick-chip" data-role="mother" onclick="toggleRolePickEdit(this,'m')">👩 Mother</div>
+      <div class="role-pick-chip" data-role="daughter" onclick="toggleRolePickEdit(this,'d')">👧 Daughter</div>
+      <div class="role-pick-chip" data-role="son" onclick="toggleRolePickEdit(this,'s')">👦 Son</div>
+    </div>
     <div class="modal-btns">
-      <button class="mb-cancel" onclick="closeModal('resetModal')">Keep Going</button>
-      <button class="mb-confirm red" onclick="doReset()">Yes, Start Fresh</button>
+      <button class="mb-cancel" onclick="closeModal('editSessModal')">Cancel</button>
+      <button class="mb-confirm" onclick="saveEditSession()">✦ Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Master Password Modal -->
+<div id="masterPwModal" class="modal-ov" style="display:none">
+  <div class="modal-c">
+    <div class="modal-ic">🔐</div>
+    <h3 id="masterPwTitle">Facilitator Login</h3>
+    <p id="masterPwDesc">Enter the master password to access the Facilitator Portal.</p>
+    <input class="modal-inp" id="masterPwInput" type="password" placeholder="Master password" onkeydown="if(event.key==='Enter')submitMasterPw()"/>
+    <div class="modal-btns">
+      <button class="mb-cancel" onclick="closeModal('masterPwModal')">Cancel</button>
+      <button class="mb-confirm" onclick="submitMasterPw()" id="masterPwBtn">Enter</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Modal -->
+<div id="confirmModal" class="modal-ov" style="display:none">
+  <div class="modal-c">
+    <div class="modal-ic" id="confirmIc">⚠️</div>
+    <h3 id="confirmTitle">Confirm</h3>
+    <p id="confirmDesc">Are you sure?</p>
+    <div class="modal-btns">
+      <button class="mb-cancel" onclick="closeModal('confirmModal')">Cancel</button>
+      <button class="mb-confirm red" id="confirmBtn">Confirm</button>
     </div>
   </div>
 </div>
 
 <script>
-let db=null,activeRole=null,currentSessionId=null,isProcessing=false,renderedIds=new Set(),trainingData={};
+// ══════════════════════════════════════════
+//  CONFIG & STATE
+// ══════════════════════════════════════════
+const FB_CFG={
+  apiKey:'AIzaSyD4kOB8-gubX-zk-JrktLKkC8SC__zjo3g',
+  authDomain:'dr-aria-super-specialist.firebaseapp.com',
+  databaseURL:'https://dr-aria-super-specialist-default-rtdb.firebaseio.com',
+  projectId:'dr-aria-super-specialist',
+  appId:'1:664623654441:web:b4b12906b6a64dbf801e38',
+  storageBucket:'',messagingSenderId:''
+};
+
+let db=null;
+let activeRole=null;
+let currentSessionId=null;
+let currentSessionData=null;
+let isProcessing=false;
+let renderedIds=new Set();
+let trainingData={};
+let masterPwCallback=null;
+let pendingSessionId=null;
+
 const RC={
   father:{label:'Father',icon:'🧔',chip:'chip-f',mav:'mav-f',mb:'mb-f',sb:'sbf',ta:'ta-f',dir:'dir-f',color:'var(--father)'},
   mother:{label:'Mother',icon:'👩',chip:'chip-m',mav:'mav-m',mb:'mb-m',sb:'sbm',ta:'ta-m',dir:'dir-m',color:'var(--mother)'},
   daughter:{label:'Daughter',icon:'👧',chip:'chip-d',mav:'mav-d',mb:'mb-d',sb:'sbd',ta:'ta-d',dir:'dir-d',color:'var(--daughter)'},
-  son:{label:'Son',icon:'👦',chip:'chip-s',mav:'mav-s',mb:'mb-s',sb:'sbs',ta:'ta-s',dir:'dir-s',color:'var(--son)'}
+  son:{label:'Son',icon:'👦',chip:'chip-s',mav:'mav-s',mb:'mb-s',sb:'sbs',ta:'ta-s',dir:'dir-s',color:'var(--son)'},
+  facilitator:{label:'Facilitator',icon:'🎙️',chip:'chip-fac',mav:'mav-fac',mb:'mb-fac',sb:'sbfac',ta:'ta-fac',dir:'dir-f',color:'var(--facilitator)'}
 };
-const TF=['tr_father','tr_mother','tr_daughter','tr_son','tr_focus','tr_outcomes','tr_avoid','tr_urgency','tr_instructions','tr_tone','tr_culture','tr_techniques','tr_background','tr_prev','tr_strengths'];
 
-function buildSP(){
-  // Safety: ensure trainingData is always a plain object
-  if(!trainingData || typeof trainingData !== 'object') trainingData = {};
-  let s=`You are Dr. Aria, a compassionate Family Counselor, Psychologist, and Dispute Resolution Specialist with 20+ years of experience. Ph.D Clinical Psychology, Board Certified in Family & Systemic Therapy.
+const TF=['tr_father','tr_mother','tr_daughter','tr_son','tr_focus','tr_outcomes',
+          'tr_avoid','tr_urgency','tr_instructions','tr_tone','tr_culture',
+          'tr_techniques','tr_background','tr_prev','tr_strengths'];
 
-## CORE APPROACH
-Guide through: Safety → Individual Perspectives → Beneath the Surface → Empathy Bridge → Resolution → Daily Practice
+const EMOJIS=['🌸','💫','🌿','🔮','⭐','🌊','🦋','🌺','💎','🌙','🕊️','🌈'];
+const COLORS=['var(--teal-lt)','var(--gold-lt)','var(--coral-lt)','var(--sage-lt)','var(--daughter-lt)'];
 
-## DEFAULT UNDERSTANDING
-- Father: Worry manifests as control. Underneath is fear and love he struggles to express.
-- Mother: Peacekeeper who goes silent. Needs encouragement to find her voice.
-- Son: Feels suffocated. Rebellion is a cry to be seen as an individual.
-- Daughter: May feel overlooked. Often the peacemaker carrying invisible weight.
-
-## CONFLICT LOOP TO BREAK
-[Father's worry→control]→[Children feel attacked→rebel/withdraw]→[Mother patches without resolving]→[Repeats daily]
-
-## ABSOLUTE RULES
-1. ALWAYS end with: ➤ **[Role], [specific question to them]**
-2. Rotate between all members. Never let anyone go silent too long.
-3. Never take sides. Validate feelings without endorsing blame.
-4. Use circular questioning: ask one member to reflect on another's experience.
-5. If tension escalates: pause, validate all, de-escalate, redirect.
-6. Warm and concise — conversation, not lecture.
-
-## TONE
-- Father: Respectful, acknowledge love beneath worry
-- Mother: Gentle, encouraging, make her feel seen and important
-- Son: Warm, validating, non-preachy, peer-level
-- Daughter: Inclusive, affirming, equally important as others
-
-Messages prefixed [Father]:, [Mother]:, [Son]:, [Daughter]:`;
-
-  const d=trainingData;
-  const profiles=[d.tr_father&&`Father: ${d.tr_father}`,d.tr_mother&&`Mother: ${d.tr_mother}`,d.tr_daughter&&`Daughter: ${d.tr_daughter}`,d.tr_son&&`Son: ${d.tr_son}`].filter(Boolean);
-  if(profiles.length) s+=`\n\n## FAMILY PROFILES (USE NAMES & DETAILS)\n${profiles.join('\n\n')}`;
-  if(d.tr_focus||d.tr_outcomes||d.tr_avoid||d.tr_urgency){
-    s+='\n\n## SESSION FOCUS';
-    if(d.tr_focus) s+=`\nPrimary: ${d.tr_focus}`;
-    if(d.tr_outcomes) s+=`\nOutcomes: ${d.tr_outcomes}`;
-    if(d.tr_avoid) s+=`\nAvoid: ${d.tr_avoid}`;
-    if(d.tr_urgency) s+=`\nUrgency: ${d.tr_urgency}`;
-  }
-  if(d.tr_instructions||d.tr_tone||d.tr_culture||d.tr_techniques){
-    s+='\n\n## DIRECT INSTRUCTIONS — FOLLOW STRICTLY';
-    if(d.tr_instructions) s+=`\n${d.tr_instructions}`;
-    if(d.tr_tone) s+=`\nTone: ${d.tr_tone}`;
-    if(d.tr_culture) s+=`\nCultural notes: ${d.tr_culture}`;
-    if(d.tr_techniques) s+=`\nTechniques: ${d.tr_techniques}`;
-  }
-  if(d.tr_background||d.tr_prev||d.tr_strengths){
-    s+='\n\n## BACKGROUND CONTEXT';
-    if(d.tr_background) s+=`\nBackground: ${d.tr_background}`;
-    if(d.tr_prev) s+=`\nPrevious session: ${d.tr_prev}`;
-    if(d.tr_strengths) s+=`\nStrengths: ${d.tr_strengths}`;
-  }
-  return s;
-}
-
-// Pre-fill config screen with saved values
-function prefillConfig(){
-  const key=localStorage.getItem('draria_anthropic_key');
-  const worker=localStorage.getItem('draria_worker');
-  const keyEl=document.getElementById('anthropicKey');
-  const workerEl=document.getElementById('workerUrl');
-  if(key&&keyEl) keyEl.value=key;
-  if(worker&&workerEl) workerEl.value=worker;
-}
-
+// ══════════════════════════════════════════
+//  SCREEN NAVIGATION
+// ══════════════════════════════════════════
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   if(id!=='chatScreen')window.scrollTo(0,0);
-  if(id==='configScreen')prefillConfig();
 }
-function showAbout(){showScreen('heroScreen');setTimeout(()=>document.getElementById('aboutSection').scrollIntoView({behavior:'smooth'}),100)}
-function goToApp(){
-  showScreen('sessionScreen');
+
+function showAbout(){
+  showScreen('heroScreen');
+  setTimeout(()=>document.getElementById('aboutSection').scrollIntoView({behavior:'smooth'}),100);
 }
-async function saveConfig(){
-  const key=document.getElementById('anthropicKey').value.trim();
-  if(!key||!key.startsWith('sk-')){showErr('Please enter a valid Anthropic API key (starts with sk-)');return}
 
-  const cfg={apiKey:document.getElementById('fb_apiKey').value.trim(),authDomain:document.getElementById('fb_authDomain').value.trim(),databaseURL:document.getElementById('fb_databaseURL').value.trim(),projectId:document.getElementById('fb_projectId').value.trim(),appId:document.getElementById('fb_appId').value.trim(),storageBucket:'',messagingSenderId:''};
+function enterApp(){showScreen('sessionScreen');}
 
-  // Save key to local server (so it persists across page reloads)
+// ══════════════════════════════════════════
+//  FIREBASE INIT
+// ══════════════════════════════════════════
+function initFirebase(){
   try{
-    await fetch('/save-key',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key})});
-  }catch(e){
-    // If local server not running, just save in localStorage as fallback
-    console.warn('Local server not available, using localStorage');
-  }
-
-  localStorage.setItem('draria_firebase',JSON.stringify(cfg));
-  localStorage.setItem('draria_anthropic_key',key);
-  initFirebase(cfg);showScreen('sessionScreen');
-}
-function initFirebase(cfg){
-  try{
-    if(!firebase.apps.length)firebase.initializeApp(cfg);
+    if(!firebase.apps.length)firebase.initializeApp(FB_CFG);
     db=firebase.database();
-
     db.ref('.info/connected').on('value',s=>{
       const el=document.getElementById('chatSub');
       if(el)el.textContent=s.val()?'Live · syncing across devices':'Offline — reconnecting...';
     });
-
-    // ── REAL-TIME global training listener ──
-    // Fires immediately on load AND whenever training changes from any device
-    db.ref('globalTraining').on('value', snap => {
-      const saved = snap.val();
-      if(saved && Object.keys(saved).length > 0){
-        trainingData = saved;
-        updateTrainBadge();
-        // Reload UI if training drawer is open
-        if(document.getElementById('trainDr').classList.contains('open')){
-          loadTrainingUI();
-        }
-        console.log('✅ Training data loaded/synced from Firebase');
-      }
+    // Real-time global training sync
+    db.ref('masterTraining').on('value',snap=>{
+      if(snap.val())window._masterTraining=snap.val();
     });
-
-    loadSessions();
-  }catch(e){showErr('Firebase: '+e.message)}
+    loadSessionsList();
+    loadFacilitatorSessionsList();
+    fetch('/health').then(r=>r.json()).then(d=>{
+      if(!d.hasKey)showErr('Server: ANTHROPIC_API_KEY not configured in Render.');
+    }).catch(()=>{});
+  }catch(e){showErr('Firebase error: '+e.message);}
 }
-function loadSessions(){
+
+// ══════════════════════════════════════════
+//  MASTER PASSWORD
+// ══════════════════════════════════════════
+function facilitatorLogin(){
+  requireMasterPw('Facilitator Login','Enter the master password to access the Facilitator Portal.',()=>{
+    showScreen('facilitatorScreen');
+  });
+}
+
+function requireMasterPw(title,desc,callback){
+  masterPwCallback=callback;
+  document.getElementById('masterPwTitle').textContent=title;
+  document.getElementById('masterPwDesc').textContent=desc;
+  document.getElementById('masterPwInput').value='';
+  document.getElementById('masterPwModal').style.display='flex';
+  setTimeout(()=>document.getElementById('masterPwInput').focus(),100);
+}
+
+function submitMasterPw(){
+  const entered=document.getElementById('masterPwInput').value.trim();
+  if(!entered){showErr('Please enter the password');return;}
+  db.ref('config/masterPassword').once('value',snap=>{
+    const stored=snap.val();
+    if(!stored){
+      // First time — set password
+      db.ref('config/masterPassword').set(btoa(entered));
+      sessionStorage.setItem('fac_auth','ok');
+      closeModal('masterPwModal');
+      showOk('Master password set. You are now logged in as Facilitator.');
+      if(masterPwCallback)masterPwCallback();
+    } else if(btoa(entered)===stored){
+      sessionStorage.setItem('fac_auth','ok');
+      closeModal('masterPwModal');
+      if(masterPwCallback)masterPwCallback();
+    } else {
+      showErr('Wrong password');
+      document.getElementById('masterPwInput').value='';
+      document.getElementById('masterPwInput').focus();
+    }
+  });
+}
+
+function isFacAuth(){return sessionStorage.getItem('fac_auth')==='ok';}
+
+function withFacAuth(callback){
+  if(isFacAuth()){callback();return;}
+  requireMasterPw('Authentication Required','Enter master password to continue.',callback);
+}
+
+function changeMasterPassword(){
+  withFacAuth(()=>{
+    requireMasterPw('Change Master Password','Enter a NEW master password:',()=>{
+      // The submitMasterPw already overwrites — but we need different flow
+      // Override: ask for new password via prompt
+      closeModal('masterPwModal');
+      const newPw=prompt('Enter your new master password:');
+      if(!newPw||newPw.trim()===''){showErr('Password cannot be empty');return;}
+      db.ref('config/masterPassword').set(btoa(newPw.trim()));
+      sessionStorage.removeItem('fac_auth');
+      showOk('Master password changed. Please log in again.');
+    });
+  });
+}
+
+// ══════════════════════════════════════════
+//  SESSION LIST (Member View)
+// ══════════════════════════════════════════
+function loadSessionsList(){
   if(!db)return;
   db.ref('sessions').orderByChild('lastActivity').on('value',snap=>{
-    const list=[];snap.forEach(c=>list.unshift({id:c.key,...c.val()}));renderSessions(list);
+    const list=[];
+    snap.forEach(c=>list.unshift({id:c.key,...c.val()}));
+    renderMemberSessions(list);
   });
-  // Note: globalTraining is loaded by real-time listener in initFirebase
-}
-function renderTrainingSummary(){
-  const existing = document.getElementById('trainingSummary');
-  if(existing) existing.remove();
-  if(!hasTraining()) return;
-  const fields = {
-    tr_father:'Father', tr_mother:'Mother', tr_daughter:'Daughter', tr_son:'Son',
-    tr_focus:'Focus', tr_instructions:'Instructions', tr_background:'Background'
-  };
-  const filled = Object.entries(fields).filter(([k])=>trainingData[k]&&trainingData[k].length>0).map(([,v])=>v);
-  if(!filled.length) return;
-  const el = document.getElementById('sessionsList');
-  const banner = document.createElement('div');
-  banner.id = 'trainingSummary';
-  banner.style.cssText = 'background:linear-gradient(135deg,#FDF3E0,#FEF9ED);border:1.5px solid rgba(201,150,58,.35);border-radius:14px;padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px;cursor:pointer';
-  banner.onclick = () => { if(currentSessionId) openTraining(); };
-  banner.innerHTML = `
-    <span style="font-size:24px">🎯</span>
-    <div style="flex:1">
-      <div style="font-size:13px;font-weight:700;color:#7A5A1A;margin-bottom:3px">Dr. Aria is Trained</div>
-      <div style="font-size:12px;color:#92711F">Active context: ${filled.join(' · ')}</div>
-    </div>
-    <div style="font-size:12px;font-weight:700;color:var(--gold);background:var(--gold-lt);padding:4px 10px;border-radius:8px">✓ Active</div>`;
-  el.insertBefore(banner, el.firstChild);
 }
 
-const EMOJIS=['🌸','💫','🌿','🔮','⭐','🌊','🦋','🌺','💎','🌙'];
-const COLORS=['var(--teal-lt)','var(--gold-lt)','var(--coral-lt)','var(--sage-lt)','var(--daughter-lt)'];
-function renderSessions(list){
+function renderMemberSessions(list){
   const el=document.getElementById('sessionsList');
-  if(!list.length){el.innerHTML='<div class="s-empty"><div class="s-empty-art">💬</div><h3>Begin Your Journey</h3><p>Start your first family counseling session. Dr. Aria is ready to guide you.</p></div>';return}
+  if(!list.length){
+    el.innerHTML='<div class="s-empty"><div class="s-empty-art">💬</div><h3>No sessions available</h3><p>Ask your Facilitator to create a session for your family.</p></div>';
+    return;
+  }
   let h=`<div class="sl-label">${list.length} Session${list.length>1?'s':''}</div>`;
   list.forEach((s,i)=>{
     const d=new Date(s.createdAt).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
-    const tr=s.trainingActive?' · 🎯 Trained':'';
-    h+=`<div class="sc" onclick="openSession('${s.id}','${escH(s.name)}')"><div class="sc-stripe"></div><div class="sc-body"><div class="sc-icon" style="background:${COLORS[i%COLORS.length]}">${EMOJIS[i%EMOJIS.length]}</div><div class="sc-info"><h3>${escH(s.name)}</h3><p>📅 ${d} · 💬 ${s.messageCount||0} messages${tr}</p></div><div class="sc-arr">→</div></div></div>`;
+    const roles=s.roles||[];
+    const roleTagsHtml=roles.map(r=>{
+      const cfg=RC[r];
+      if(!cfg)return '';
+      const colors={father:'background:var(--father-lt);color:var(--father)',mother:'background:var(--mother-lt);color:var(--mother)',daughter:'background:var(--daughter-lt);color:var(--daughter)',son:'background:var(--son-lt);color:var(--son)'};
+      return `<span class="ms-role-tag" style="${colors[r]||''}">${cfg.icon} ${cfg.label}</span>`;
+    }).join('');
+    h+=`
+    <div class="ms-card" onclick="promptSessionPassword('${s.id}')">
+      <div class="ms-card-top">
+        <div class="ms-card-icon" style="background:${COLORS[i%COLORS.length]}">${EMOJIS[i%EMOJIS.length]}</div>
+        <div>
+          <div class="ms-card-name">${escH(s.name)}</div>
+          <div class="ms-card-meta">📅 ${d} · 💬 ${s.messageCount||0} messages</div>
+        </div>
+        <div class="ms-card-lock">🔒</div>
+      </div>
+      <div class="ms-roles">${roleTagsHtml}</div>
+    </div>`;
   });
   el.innerHTML=h;
 }
-function openSession(id,name){
+
+// ══════════════════════════════════════════
+//  SESSION PASSWORD FLOW
+// ══════════════════════════════════════════
+function promptSessionPassword(sessionId){
+  pendingSessionId=sessionId;
+  db.ref('sessions/'+sessionId).once('value',snap=>{
+    const s=snap.val();
+    if(!s)return;
+    document.getElementById('pwSessionName').textContent=s.name;
+    document.getElementById('pwSessionDesc').textContent='Enter the 6-digit password to join this session.';
+    // Show roles
+    const roles=s.roles||[];
+    const html=roles.map(r=>{
+      const cfg=RC[r];if(!cfg)return '';
+      const colors={father:'background:var(--father);color:white',mother:'background:var(--mother);color:white',daughter:'background:var(--daughter);color:white',son:'background:var(--son);color:white'};
+      return `<span class="pw-role-chip" style="${colors[r]||'background:var(--teal);color:white'}">${cfg.icon} ${cfg.label}</span>`;
+    }).join('');
+    document.getElementById('pwRolesDisplay').innerHTML=html;
+    document.getElementById('pwInput').value='';
+    showScreen('sessionPasswordScreen');
+    setTimeout(()=>document.getElementById('pwInput').focus(),200);
+  });
+}
+
+function submitSessionPassword(){
+  const entered=document.getElementById('pwInput').value.trim();
+  if(entered.length!==6){showErr('Please enter the full 6-digit password');return;}
+  if(!pendingSessionId)return;
+  db.ref('sessions/'+pendingSessionId).once('value',snap=>{
+    const s=snap.val();
+    if(!s){showErr('Session not found');return;}
+    if(entered===s.password){
+      // Grant access — store in session storage
+      sessionStorage.setItem('sess_auth_'+pendingSessionId,'ok');
+      openSession(pendingSessionId,s.name,s);
+    } else {
+      showErr('Wrong password — check with your Facilitator');
+      document.getElementById('pwInput').value='';
+      document.getElementById('pwInput').focus();
+    }
+  });
+}
+
+// ══════════════════════════════════════════
+//  FACILITATOR SESSION MANAGEMENT
+// ══════════════════════════════════════════
+function loadFacilitatorSessionsList(){
+  if(!db)return;
+  db.ref('sessions').orderByChild('lastActivity').on('value',snap=>{
+    const list=[];
+    snap.forEach(c=>list.unshift({id:c.key,...c.val()}));
+    renderFacilitatorSessions(list);
+  });
+}
+
+function renderFacilitatorSessions(list){
+  const el=document.getElementById('facSessionsList');
+  if(!list.length){
+    el.innerHTML='<div class="sess-empty"><div class="sess-empty-art">📋</div><h3>No sessions yet</h3></div>';
+    return;
+  }
+  let h=`<div class="sess-grid-label">${list.length} Session${list.length>1?'s':''}</div>`;
+  list.forEach((s,i)=>{
+    const d=new Date(s.createdAt).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+    const roles=s.roles||[];
+    const roleTagsHtml=roles.map(r=>{
+      const cfg=RC[r];if(!cfg)return '';
+      const colors={father:'background:var(--father-lt);color:var(--father)',mother:'background:var(--mother-lt);color:var(--mother)',daughter:'background:var(--daughter-lt);color:var(--daughter)',son:'background:var(--son-lt);color:var(--son)'};
+      return `<span class="sc-role-tag" style="${colors[r]||''}">${cfg.icon} ${cfg.label}</span>`;
+    }).join('');
+    h+=`
+    <div class="sess-card">
+      <div class="sc-main">
+        <div class="sc-stripe"></div>
+        <div class="sc-body-click" onclick="facOpenSession('${s.id}','${escH(s.name)}')">
+          <div class="sc-icon" style="background:${COLORS[i%COLORS.length]}">${EMOJIS[i%EMOJIS.length]}</div>
+          <div class="sc-info">
+            <h3>${escH(s.name)}</h3>
+            <p>📅 ${d} · 💬 ${s.messageCount||0} messages · 🔑 ${s.password||'—'}</p>
+            <div class="sc-roles">${roleTagsHtml}</div>
+          </div>
+        </div>
+        <div class="sc-acts">
+          <button class="sc-act-btn" onclick="openEditSession('${s.id}')" title="Edit">✏️</button>
+          <button class="sc-act-btn del" onclick="deleteSession('${s.id}','${escH(s.name)}')" title="Delete">🗑️</button>
+        </div>
+      </div>
+    </div>`;
+  });
+  el.innerHTML=h;
+}
+
+// Facilitator opens session directly (no password needed)
+function facOpenSession(id,name){
+  sessionStorage.setItem('sess_auth_'+id,'ok');
+  db.ref('sessions/'+id).once('value',snap=>{
+    openSession(id,name,snap.val());
+  });
+}
+
+let selectedRoles=new Set();
+let editSelectedRoles=new Set();
+
+function openCreateSessionModal(){
+  document.getElementById('newSessName').value='';
+  document.getElementById('newSessPw').value='';
+  selectedRoles=new Set();
+  document.querySelectorAll('#rolesPicker .role-pick-chip').forEach(c=>{
+    c.className='role-pick-chip';
+  });
+  document.getElementById('createSessModal').style.display='flex';
+  setTimeout(()=>document.getElementById('newSessName').focus(),100);
+}
+
+function toggleRolePick(el,code){
+  const role=el.dataset.role;
+  if(selectedRoles.has(role)){
+    selectedRoles.delete(role);
+    el.className='role-pick-chip';
+  } else {
+    selectedRoles.add(role);
+    el.className=`role-pick-chip selected-${code}`;
+  }
+}
+
+function toggleRolePickEdit(el,code){
+  const role=el.dataset.role;
+  if(editSelectedRoles.has(role)){
+    editSelectedRoles.delete(role);
+    el.className='role-pick-chip';
+  } else {
+    editSelectedRoles.add(role);
+    el.className=`role-pick-chip selected-${code}`;
+  }
+}
+
+async function createSession(){
+  const name=document.getElementById('newSessName').value.trim();
+  const pw=document.getElementById('newSessPw').value.trim();
+  if(!name){showErr('Please enter a session name');return;}
+  if(pw.length!==6){showErr('Password must be exactly 6 digits');return;}
+  if(selectedRoles.size===0){showErr('Please select at least one role');return;}
+  closeModal('createSessModal');
+  try{
+    const ref=db.ref('sessions').push();
+    await ref.set({
+      name,
+      password:pw,
+      roles:Array.from(selectedRoles),
+      createdAt:Date.now(),
+      lastActivity:Date.now(),
+      messageCount:0
+    });
+    showOk('Session created: '+name+' · Password: '+pw);
+    // Auto-open for facilitator
+    sessionStorage.setItem('sess_auth_'+ref.key,'ok');
+    openSession(ref.key,name,{name,password:pw,roles:Array.from(selectedRoles)});
+    setTimeout(()=>ariaOpening(ref.key),600);
+  }catch(e){showErr('Failed to create session: '+e.message);}
+}
+
+function openEditSession(id){
+  db.ref('sessions/'+id).once('value',snap=>{
+    const s=snap.val();if(!s)return;
+    document.getElementById('editSessId').value=id;
+    document.getElementById('editSessName').value=s.name||'';
+    document.getElementById('editSessPw').value=s.password||'';
+    editSelectedRoles=new Set(s.roles||[]);
+    // Set chips
+    document.querySelectorAll('#editRolesPicker .role-pick-chip').forEach(chip=>{
+      const r=chip.dataset.role;
+      const codes={father:'f',mother:'m',daughter:'d',son:'s'};
+      if(editSelectedRoles.has(r)) chip.className=`role-pick-chip selected-${codes[r]}`;
+      else chip.className='role-pick-chip';
+    });
+    document.getElementById('editSessModal').style.display='flex';
+  });
+}
+
+async function saveEditSession(){
+  const id=document.getElementById('editSessId').value;
+  const name=document.getElementById('editSessName').value.trim();
+  const pw=document.getElementById('editSessPw').value.trim();
+  if(!name){showErr('Session name required');return;}
+  if(pw.length!==6){showErr('Password must be 6 digits');return;}
+  if(editSelectedRoles.size===0){showErr('Select at least one role');return;}
+  closeModal('editSessModal');
+  try{
+    await db.ref('sessions/'+id).update({
+      name,password:pw,
+      roles:Array.from(editSelectedRoles)
+    });
+    showOk('Session updated');
+  }catch(e){showErr('Update failed: '+e.message);}
+}
+
+function deleteSession(id,name){
+  showConfirm('🗑️','Delete Session','Delete "'+name+'"? This cannot be undone.',()=>{
+    db.ref('sessions/'+id).remove()
+      .then(()=>showOk('Session deleted'))
+      .catch(e=>showErr('Delete failed: '+e.message));
+  });
+}
+
+function deleteAllSessions(){
+  showConfirm('⚠️','Delete ALL Sessions','This will permanently delete all sessions and all messages. Cannot be undone.',()=>{
+    db.ref('sessions').remove()
+      .then(()=>showOk('All sessions cleared'))
+      .catch(e=>showErr('Failed: '+e.message));
+  });
+}
+
+// ══════════════════════════════════════════
+//  OPEN SESSION & CHAT
+// ══════════════════════════════════════════
+function openSession(id,name,sessData){
   currentSessionId=id;
+  currentSessionData=sessData||{};
   document.getElementById('chatTitle').textContent=name;
   document.getElementById('msgs').innerHTML='';
-  renderedIds=new Set();activeRole=null;
-  // ⚠️ Do NOT reset trainingData here — real-time listener keeps it current
+  renderedIds=new Set();
+  activeRole=null;
+  trainingData={};
   resetRoleUI();
-  updateTrainBadge();
+  buildRoleBar(sessData);
+  // Load session-specific training
+  loadSessionTraining(id);
   showScreen('chatScreen');
   subscribeMessages(id);
 }
+
+function buildRoleBar(sessData){
+  const bar=document.getElementById('roleBar');
+  const roles=sessData&&sessData.roles?sessData.roles:['father','mother','daughter','son'];
+  // Always include facilitator if facilitator is auth'd
+  const allRoles=isFacAuth()?[...roles,'facilitator']:roles;
+  let html='<span class="rl">I am →</span>';
+  allRoles.forEach(r=>{
+    const cfg=RC[r];if(!cfg)return;
+    const cls=r==='facilitator'?'rfac':{father:'rf',mother:'rm',daughter:'rd',son:'rs'}[r]||'rf';
+    html+=`<div class="rchip ${cls}" id="chip-${r}" onclick="selectRole('${r}')">${cfg.icon} ${cfg.label}</div>`;
+  });
+  bar.innerHTML=html;
+}
+
 function goToSessions(){
   if(currentSessionId){
     try{
@@ -831,73 +1102,42 @@ function goToSessions(){
       db.ref(`sessions/${currentSessionId}/typing`).off();
     }catch(e){}
   }
-  currentSessionId=null;
-  renderedIds=new Set();
+  currentSessionId=null;currentSessionData=null;renderedIds=new Set();
   showScreen('sessionScreen');
 }
-function openNewModal(){document.getElementById('sessNameInput').value='';document.getElementById('newModal').style.display='flex';setTimeout(()=>document.getElementById('sessNameInput').focus(),100)}
-async function createSession(){
-  const name=document.getElementById('sessNameInput').value.trim();
-  if(!name){document.getElementById('sessNameInput').focus();return}
-  closeModal('newModal');
-  try{
-    const ref=db.ref('sessions').push();
-    await ref.set({
-      name,
-      createdAt:Date.now(),
-      lastActivity:Date.now(),
-      messageCount:0,
-      createdBy:'father'
-    });
-    console.log('✅ Session created:',ref.key);
-    openSession(ref.key,name);
-    setTimeout(()=>ariaOpening(ref.key),600);
-  }catch(e){
-    showErr('Failed to create session: '+e.message+'. Check Firebase database rules allow writes.');
-    console.error('Session create error:',e);
-  }
-}
-function confirmReset(){document.getElementById('resetModal').style.display='flex'}
-function doReset(){closeModal('resetModal');goToSessions();openNewModal()}
-function closeModal(id){document.getElementById(id).style.display='none'}
-function closeModalOut(e,id){if(e.target.id===id)closeModal(id)}
+
+// ══════════════════════════════════════════
+//  FIREBASE MESSAGES
+// ══════════════════════════════════════════
 function subscribeMessages(id){
   db.ref(`sessions/${id}/messages`).orderByChild('timestamp').on('child_added',snap=>{
     const msg={id:snap.key,...snap.val()};
     if(!renderedIds.has(msg.id)){renderedIds.add(msg.id);renderMsg(msg);scrollBottom();}
   });
-  // Listen for edits/deletes
   db.ref(`sessions/${id}/messages`).on('child_changed',snap=>{
     const msg={id:snap.key,...snap.val()};
     const bodyEl=document.getElementById('mbody-'+msg.id);
-    if(bodyEl && msg.edited){
-      bodyEl.innerHTML=escH(msg.content)+'<span style="font-size:10px;color:var(--text-low);margin-left:6px">(edited)</span>';
-    }
+    if(bodyEl&&msg.edited)bodyEl.innerHTML=escH(msg.content)+'<span style="font-size:10px;color:var(--text-low);margin-left:5px">(edited)</span>';
   });
   db.ref(`sessions/${id}/messages`).on('child_removed',snap=>{
-    const el=document.getElementById('msg-'+snap.key);
-    if(el) el.remove();
+    const el=document.getElementById('msg-'+snap.key);if(el)el.remove();
   });
   db.ref(`sessions/${id}/typing`).on('value',snap=>snap.val()?showTyping():hideTyping());
 }
+
 async function ariaOpening(id){
   await setTyping(id,true);
-  // Show cold-start warning for first message
-  const coldBanner=document.getElementById('coldBanner');
-  if(coldBanner) coldBanner.classList.add('show');
-  const coldTimer=setTimeout(()=>{if(coldBanner)coldBanner.classList.remove('show')},40000);
+  const cb=document.getElementById('coldBanner');
+  if(cb)cb.classList.add('show');
+  const ct=setTimeout(()=>{if(cb)cb.classList.remove('show');},40000);
   try{
-    const r=await callAria([{role:'user',content:'[System]: The family has just joined. Please deliver your warm, personalized opening welcome. Address all four possible members — Father, Mother, Daughter, Son — welcoming whoever is present.'}]);
-    clearTimeout(coldTimer);
-    if(coldBanner) coldBanner.classList.remove('show');
+    const r=await callAria([{role:'user',content:'[System]: Family has just joined. Deliver your warm personalized opening. Address all participating members warmly.'}]);
+    clearTimeout(ct);if(cb)cb.classList.remove('show');
     await saveMsg(id,'aria',r);
-  }catch(e){
-    clearTimeout(coldTimer);
-    if(coldBanner) coldBanner.classList.remove('show');
-    showErr('Dr. Aria: '+e.message);
-  }
+  }catch(e){clearTimeout(ct);if(cb)cb.classList.remove('show');showErr('Dr. Aria: '+e.message);}
   await setTyping(id,false);
 }
+
 async function sendMessage(){
   if(!activeRole||isProcessing||!currentSessionId)return;
   const ta=document.getElementById('msgInput');
@@ -912,10 +1152,11 @@ async function sendMessage(){
     hist.push({role:'user',content:`[${cfg.label}]: ${text}`});
     const r=await callAria(hist);
     await saveMsg(currentSessionId,'aria',r);flash();
-  }catch(e){showErr('Error: '+e.message)}
+  }catch(e){showErr('Error: '+e.message);}
   await setTyping(currentSessionId,false);
   isProcessing=false;document.getElementById('sendBtn').disabled=false;
 }
+
 async function buildHist(id){
   const snap=await db.ref(`sessions/${id}/messages`).orderByChild('timestamp').once('value');
   const msgs=[];
@@ -926,48 +1167,224 @@ async function buildHist(id){
   });
   return msgs;
 }
+
 async function saveMsg(id,speaker,content){
   await db.ref(`sessions/${id}/messages`).push({speaker,content,timestamp:Date.now()});
   db.ref(`sessions/${id}`).update({lastActivity:Date.now(),messageCount:firebase.database.ServerValue.increment(1)});
 }
-async function setTyping(id,val){await db.ref(`sessions/${id}/typing`).set(val)}
-async function callAria(messages){
-  const controller=new AbortController();
-  const timeout=setTimeout(()=>controller.abort(),60000);
 
+async function setTyping(id,val){await db.ref(`sessions/${id}/typing`).set(val);}
+
+// ══════════════════════════════════════════
+//  API CALL
+// ══════════════════════════════════════════
+async function callAria(messages){
+  const ctrl=new AbortController();
+  const t=setTimeout(()=>ctrl.abort(),60000);
   try{
     const r=await fetch('/api',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-6',
-        max_tokens:1000,
-        system:buildSP(),
-        messages
-      }),
-      signal:controller.signal
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,system:buildSP(),messages}),
+      signal:ctrl.signal
     });
-    clearTimeout(timeout);
-
-    let d;
-    try{ d=await r.json(); }
-    catch(e){ throw new Error('Server returned unexpected response (status '+r.status+')'); }
-
-    if(!r.ok||d?.error){
-      const msg=d?.error?.message||'Server error '+r.status;
-      throw new Error(msg);
-    }
-
+    clearTimeout(t);
+    let d;try{d=await r.json();}catch(e){throw new Error('Server error (status '+r.status+')');}
+    if(!r.ok||d?.error)throw new Error(d?.error?.message||'Server error '+r.status);
     const text=d?.content?.[0]?.text;
-    if(!text) throw new Error('Empty response from Dr. Aria — please try again.');
+    if(!text)throw new Error('Empty response — please try again.');
     return text;
-
-  }catch(e){
-    clearTimeout(timeout);
-    if(e.name==='AbortError') throw new Error('Request timed out. Server may be waking up — please try again in 30 seconds.');
-    throw e;
-  }
+  }catch(e){clearTimeout(t);if(e.name==='AbortError')throw new Error('Request timed out — server may be waking up. Try again.');throw e;}
 }
+
+// ══════════════════════════════════════════
+//  SYSTEM PROMPT BUILDER
+// ══════════════════════════════════════════
+function buildSP(){
+  if(!trainingData||typeof trainingData!=='object')trainingData={};
+  const sessName=currentSessionData?.name||'';
+  let s=`You are Dr. Aria, a compassionate Family Counselor, Psychologist, and Dispute Resolution Specialist with 20+ years of experience. Ph.D Clinical Psychology, Board Certified in Family & Systemic Therapy.
+
+## CORE APPROACH
+Guide through: Safety → Individual Perspectives → Beneath the Surface → Empathy Bridge → Resolution → Daily Practice
+
+## DEFAULT UNDERSTANDING
+- Father: Worry manifests as control. Underneath is fear and love he struggles to express.
+- Mother: Peacekeeper who goes silent. Needs encouragement to find her voice.
+- Son: Feels suffocated. Rebellion is a cry to be seen as an individual.
+- Daughter: May feel overlooked. Often the peacemaker carrying invisible weight.
+- Facilitator: The session manager. Neutral organizer. Treat with professional respect.
+
+## CONFLICT LOOP TO BREAK
+[Father worry→control]→[Children feel attacked→rebel/withdraw]→[Mother patches without resolving]→[Repeats daily]
+
+## ABSOLUTE RULES
+1. ALWAYS end with: ➤ **[Role], [specific question]**
+2. Rotate between all members. Never let anyone go silent too long.
+3. Never take sides. Validate feelings without endorsing blame.
+4. Use circular questioning: ask one member to reflect on another's experience.
+5. Warm and concise — conversation, not lecture.
+
+## TONE
+- Father: Respectful, acknowledge love beneath worry
+- Mother: Gentle, encouraging, make her feel seen
+- Son: Warm, validating, non-preachy, peer-level
+- Daughter: Inclusive, affirming, equally important
+- Facilitator: Professional, peer-level
+
+Messages prefixed [Father]:, [Mother]:, [Son]:, [Daughter]:, [Facilitator]:`;
+
+  const d=trainingData;
+  const profiles=[
+    d.tr_father&&`Father: ${d.tr_father}`,
+    d.tr_mother&&`Mother: ${d.tr_mother}`,
+    d.tr_daughter&&`Daughter: ${d.tr_daughter}`,
+    d.tr_son&&`Son: ${d.tr_son}`
+  ].filter(Boolean);
+  if(profiles.length)s+=`\n\n## FAMILY PROFILES (USE NAMES & DETAILS)\n${profiles.join('\n\n')}`;
+  if(d.tr_focus||d.tr_outcomes||d.tr_avoid||d.tr_urgency){
+    s+='\n\n## SESSION FOCUS';
+    if(d.tr_focus)s+=`\nPrimary: ${d.tr_focus}`;
+    if(d.tr_outcomes)s+=`\nOutcomes: ${d.tr_outcomes}`;
+    if(d.tr_avoid)s+=`\nAvoid: ${d.tr_avoid}`;
+    if(d.tr_urgency)s+=`\nUrgency: ${d.tr_urgency}`;
+  }
+  if(d.tr_instructions||d.tr_tone||d.tr_culture||d.tr_techniques){
+    s+='\n\n## DIRECT INSTRUCTIONS — FOLLOW STRICTLY';
+    if(d.tr_instructions)s+=`\n${d.tr_instructions}`;
+    if(d.tr_tone)s+=`\nTone: ${d.tr_tone}`;
+    if(d.tr_culture)s+=`\nCultural: ${d.tr_culture}`;
+    if(d.tr_techniques)s+=`\nTechniques: ${d.tr_techniques}`;
+  }
+  if(d.tr_background||d.tr_prev||d.tr_strengths){
+    s+='\n\n## BACKGROUND CONTEXT';
+    if(d.tr_background)s+=`\nBackground: ${d.tr_background}`;
+    if(d.tr_prev)s+=`\nPrevious session: ${d.tr_prev}`;
+    if(d.tr_strengths)s+=`\nStrengths: ${d.tr_strengths}`;
+  }
+  return s;
+}
+
+// ══════════════════════════════════════════
+//  TRAINING — SESSION SPECIFIC
+// ══════════════════════════════════════════
+function loadSessionTraining(id){
+  db.ref(`sessions/${id}/training`).on('value',snap=>{
+    trainingData=snap.val()||{};
+    updateTrainBadge();
+    if(document.getElementById('trainDr').classList.contains('open'))loadTrainingUI();
+  });
+}
+
+function openTraining(){
+  if(!currentSessionId){showErr('Open a session first');return;}
+  const sessName=currentSessionData?.name||currentSessionId;
+  document.getElementById('trainSessLabel').textContent='Train Dr. Aria · '+sessName;
+  document.getElementById('trainOv').classList.add('open');
+  document.getElementById('trainDr').classList.add('open');
+  // Always refresh from Firebase before showing
+  db.ref(`sessions/${currentSessionId}/training`).once('value',snap=>{
+    trainingData=snap.val()||{};
+    loadTrainingUI();
+  });
+}
+
+function openMasterTraining(){
+  // Open training drawer but pointing to master training db
+  document.getElementById('trainSessLabel').textContent='Master Training · Applied to all new sessions';
+  document.getElementById('trainOv').classList.add('open');
+  document.getElementById('trainDr').classList.add('open');
+  document.getElementById('tr-save-mode').value='master';
+  db.ref('masterTraining').once('value',snap=>{
+    trainingData=snap.val()||{};
+    loadTrainingUI();
+  });
+}
+
+function importFromMaster(){
+  const masterData=window._masterTraining||{};
+  if(!Object.keys(masterData).length){showErr('No master training data found. Set it via "Master Train Dr. Aria" in the Facilitator Portal.');return;}
+  // Merge master into current session training
+  Object.assign(trainingData,masterData);
+  loadTrainingUI();
+  showOk('Master training imported. Save to apply to this session.');
+}
+
+function closeTraining(){
+  document.getElementById('trainOv').classList.remove('open');
+  document.getElementById('trainDr').classList.remove('open');
+  document.getElementById('tr-save-mode').value='session';
+}
+
+function closeTrainOut(e){if(e.target===document.getElementById('trainOv'))closeTraining();}
+
+function switchTab(i){
+  document.querySelectorAll('.ttab').forEach((t,j)=>t.classList.toggle('on',i===j));
+  document.querySelectorAll('.tpanel').forEach((p,j)=>p.classList.toggle('on',i===j));
+}
+
+function loadTrainingUI(){
+  document.querySelectorAll('.tr-field').forEach(f=>{
+    f.classList.remove('locked');
+    const inp=f.querySelector('textarea,input[type=text]');
+    if(inp)inp.removeAttribute('readonly');
+    f.querySelectorAll('.edit-btn').forEach(b=>b.remove());
+    const lr=f.querySelector('.lock-row');
+    if(lr){const lbl=lr.querySelector('label');if(lbl)f.insertBefore(lbl,lr);lr.remove();}
+  });
+  TF.forEach(f=>{const el=document.getElementById(f);if(el)el.value=trainingData[f]||'';});
+  applyLockState();
+}
+
+function applyLockState(){if(hasTraining())lockTrainingFields();}
+
+function lockTrainingFields(){
+  document.querySelectorAll('.tr-field').forEach(field=>{
+    const ta=field.querySelector('textarea,input[type=text]');
+    if(!ta)return;
+    field.classList.add('locked');
+    ta.setAttribute('readonly','');
+    const labelRow=field.querySelector('label');
+    if(labelRow&&!field.querySelector('.edit-btn')){
+      const wrapper=document.createElement('div');wrapper.className='lock-row';
+      labelRow.parentNode.insertBefore(wrapper,labelRow);wrapper.appendChild(labelRow);
+      const eb=document.createElement('button');eb.className='edit-btn';eb.textContent='✏️ Edit';
+      eb.onclick=()=>{
+        field.classList.remove('locked');ta.removeAttribute('readonly');ta.focus();
+        eb.textContent='🔒 Lock';
+        eb.onclick=()=>{field.classList.add('locked');ta.setAttribute('readonly','');eb.textContent='✏️ Edit';eb.onclick=()=>unlockFieldBtn(field,ta,eb);};
+      };
+      wrapper.appendChild(eb);
+    }
+  });
+}
+
+function saveTraining(){
+  TF.forEach(f=>{const el=document.getElementById(f);if(el)trainingData[f]=el.value.trim();});
+  const mode=document.getElementById('tr-save-mode').value;
+  const isMaster=mode==='master';
+  const savePath=isMaster?'masterTraining':`sessions/${currentSessionId}/training`;
+  db.ref(savePath).set(trainingData)
+    .then(()=>{
+      if(isMaster){
+        window._masterTraining=trainingData;
+        showOk('Master training saved — will be imported to new sessions');
+      } else {
+        updateTrainBadge();
+        showOk('Training saved for this session · "Train Dr. Aria_'+( currentSessionData?.name||'Session')+'"');
+      }
+      lockTrainingFields();
+      closeTraining();
+    })
+    .catch(e=>showErr('Save failed: '+e.message));
+}
+
+function hasTraining(){return TF.some(f=>trainingData[f]&&trainingData[f].length>0);}
+function updateTrainBadge(){const b=document.getElementById('trainBadge');if(b)b.style.display=hasTraining()?'inline-flex':'none';}
+
+// ══════════════════════════════════════════
+//  RENDER MESSAGES
+// ══════════════════════════════════════════
 function renderMsg(msg){
   const wrap=document.getElementById('msgs');
   const isAria=msg.speaker==='aria';
@@ -976,14 +1393,11 @@ function renderMsg(msg){
   const row=document.createElement('div');
   row.className=`mrow ${isAria?'aria-row':'user-row'}`;
   row.id='msg-'+msg.id;
-
-  // Actions for user messages (edit/delete own messages)
-  const canEdit=!isAria;
-  const actionsHtml=canEdit?`
-    <div class="msg-actions" id="acts-${msg.id}">
-      <button class="mact-btn" onclick="editMsg('${msg.id}','${msg.speaker}')" title="Edit">✏️</button>
-      <button class="mact-btn mact-del" onclick="deleteMsg('${msg.id}','${msg.speaker}')" title="Delete">🗑️</button>
-    </div>`:'';
+  const canAct=!isAria;
+  const acts=canAct?`<div class="msg-actions" id="acts-${msg.id}">
+    <button class="mact-btn" onclick="editMsg('${msg.id}','${msg.speaker}')" title="Edit">✏️</button>
+    <button class="mact-btn mact-del" onclick="deleteMsg('${msg.id}','${msg.speaker}')" title="Delete">🗑️</button>
+  </div>`:'';
 
   if(isAria){
     let main=msg.content,dirH='';
@@ -997,316 +1411,144 @@ function renderMsg(msg){
       dirH=`<div><div class="directed ${dCls}">${dIcon} <strong>${escH(dm[1])}</strong>: ${escH(dm[2].trim())}</div></div>`;
     }
     row.innerHTML=`<div class="mav mav-a">A</div><div class="mc"><div class="mmeta">✦ Dr. Aria · ${time}</div><div class="mb mb-a">${fmtAria(main)}${dirH}</div></div>`;
-  }else{
+  } else {
+    const mav=cfg?cfg.mav:'mav-f';
+    const icon=cfg?cfg.icon:'?';
+    const label=cfg?cfg.label:'Unknown';
+    const mbCls=cfg?cfg.mb:'mb-f';
     row.innerHTML=`
-      <div class="mav ${cfg.mav}">${cfg.icon}</div>
+      <div class="mav ${mav}">${icon}</div>
       <div class="mc" style="position:relative">
-        <div class="mmeta">${cfg.icon} ${cfg.label} · ${time}</div>
-        <div class="mb ${cfg.mb}" id="mbody-${msg.id}">${escH(msg.content)}</div>
-        ${actionsHtml}
+        <div class="mmeta">${icon} ${label} · ${time}</div>
+        <div class="mb ${mbCls}" id="mbody-${msg.id}">${escH(msg.content)}</div>
+        ${acts}
       </div>`;
   }
   wrap.appendChild(row);
 }
+
 function showTyping(){
   if(document.getElementById('typInd'))return;
-  const wrap=document.getElementById('msgs');
   const d=document.createElement('div');d.className='trow';d.id='typInd';
   d.innerHTML='<div class="mav mav-a">A</div><div class="tbub"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div>';
-  wrap.appendChild(d);scrollBottom();
+  document.getElementById('msgs').appendChild(d);scrollBottom();
 }
-function hideTyping(){document.getElementById('typInd')?.remove()}
+function hideTyping(){document.getElementById('typInd')?.remove();}
+
+// ══════════════════════════════════════════
+//  ROLE SELECTION
+// ══════════════════════════════════════════
 function selectRole(role){
-  activeRole=role;const cfg=RC[role];
-  Object.keys(RC).forEach(r=>document.getElementById(RC[r].chip).classList.remove('sel'));
-  document.getElementById(cfg.chip).classList.add('sel');
+  activeRole=role;
+  const cfg=RC[role];if(!cfg)return;
+  document.querySelectorAll('.rchip').forEach(c=>c.classList.remove('sel'));
+  const chip=document.getElementById('chip-'+role);if(chip)chip.classList.add('sel');
   document.getElementById('whoInd').innerHTML=`<span style="color:${cfg.color}">${cfg.icon} ${cfg.label} is speaking</span>`;
   const ta=document.getElementById('msgInput');
   ta.disabled=false;ta.placeholder=`What would you like to share, ${cfg.label}?`;ta.className=cfg.ta;ta.focus();
   const sb=document.getElementById('sendBtn');sb.className=`sbtn ${cfg.sb}`;sb.disabled=false;
 }
+
 function resetRoleUI(){
-  Object.keys(RC).forEach(r=>document.getElementById(RC[r].chip)?.classList.remove('sel'));
+  document.querySelectorAll('.rchip').forEach(c=>c.classList.remove('sel'));
   document.getElementById('whoInd').innerHTML='👆 Select your role above';
   const ta=document.getElementById('msgInput');ta.disabled=true;ta.placeholder='Select your role first...';ta.className='';
   const sb=document.getElementById('sendBtn');sb.className='sbtn';sb.disabled=true;
 }
-function openTraining(){
-  document.getElementById('trainOv').classList.add('open');
-  document.getElementById('trainDr').classList.add('open');
-  // Always re-fetch from Firebase before showing to ensure latest data
-  if(db){
-    db.ref('globalTraining').once('value', snap => {
-      if(snap.val()) trainingData = snap.val();
-      loadTrainingUI();
-    });
-  } else {
-    loadTrainingUI();
-  }
-}
-function closeTraining(){document.getElementById('trainOv').classList.remove('open');document.getElementById('trainDr').classList.remove('open')}
-function closeTrainOut(e){if(e.target===document.getElementById('trainOv'))closeTraining()}
-function switchTab(i){
-  document.querySelectorAll('.ttab').forEach((t,j)=>t.classList.toggle('on',i===j));
-  document.querySelectorAll('.tpanel').forEach((p,j)=>p.classList.toggle('on',i===j));
-}
-function loadTrainingUI(){
-  // First unlock all fields cleanly
-  document.querySelectorAll('.tr-field').forEach(f=>{
-    f.classList.remove('locked');
-    const inp=f.querySelector('textarea,input');
-    if(inp) inp.removeAttribute('readonly');
-    // Remove any stale edit buttons
-    f.querySelectorAll('.edit-btn').forEach(b=>b.remove());
-    // Unwrap lock-row if present
-    const lr=f.querySelector('.lock-row');
-    if(lr){
-      const lbl=lr.querySelector('label');
-      if(lbl) f.insertBefore(lbl,lr);
-      lr.remove();
-    }
-  });
-  // Populate fields
-  TF.forEach(f=>{const el=document.getElementById(f);if(el)el.value=trainingData[f]||''});
-  // Lock if data exists
-  applyLockStateIfSaved();
-}
 
-function lockTrainingFields(){
-  document.querySelectorAll('.tr-field').forEach(field=>{
-    field.classList.add('locked');
-    const ta=field.querySelector('textarea,input');
-    if(ta)ta.setAttribute('readonly','');
-    // Add edit button if not present
-    const labelRow=field.querySelector('label');
-    if(labelRow && !field.querySelector('.edit-btn')){
-      const wrapper=document.createElement('div');wrapper.className='lock-row';
-      labelRow.parentNode.insertBefore(wrapper,labelRow);
-      wrapper.appendChild(labelRow);
-      const editBtn=document.createElement('button');
-      editBtn.className='edit-btn';editBtn.textContent='✏️ Edit';
-      editBtn.onclick=()=>unlockField(field);
-      wrapper.appendChild(editBtn);
-    }
-  });
-}
-function unlockField(field){
-  field.classList.remove('locked');
-  const ta=field.querySelector('textarea,input');
-  if(ta){ta.removeAttribute('readonly');ta.focus();}
-  const editBtn=field.querySelector('.edit-btn');
-  if(editBtn)editBtn.textContent='🔒 Lock';
-  editBtn.onclick=()=>{
-    field.classList.add('locked');
-    ta.setAttribute('readonly','');
-    editBtn.textContent='✏️ Edit';
-    editBtn.onclick=()=>unlockField(field);
-  };
-}
-function applyLockStateIfSaved(){
-  if(hasTraining())lockTrainingFields();
-}
-function saveTraining(){
-  TF.forEach(f=>{const el=document.getElementById(f);if(el)trainingData[f]=el.value.trim()});
-  updateTrainBadge();
-
-  // ── Save to Firebase globalTraining (real-time listener will auto-update all devices) ──
-  db.ref('globalTraining').set(trainingData)
-    .then(()=> console.log('✅ Training saved to Firebase'))
-    .catch(e => showErr('Failed to save training: ' + e.message));
-
-  // Also save to current session for reference
-  if(currentSessionId){
-    db.ref(`sessions/${currentSessionId}/training`).set(trainingData);
-    db.ref(`sessions/${currentSessionId}`).update({trainingActive:hasTraining()});
-  }
-
-  // Lock fields after save
-  lockTrainingFields();
-  closeTraining();
-  showOk('✦ Dr. Aria trained & saved — persists across all sessions & devices');
-}
-function hasTraining(){return TF.some(f=>trainingData[f]&&trainingData[f].length>0)}
-function updateTrainBadge(){const b=document.getElementById('trainBadge');if(b)b.style.display=hasTraining()?'inline-flex':'none'}
-
-// ── PASSWORD SYSTEM ──
-let fatherPassword = null;
-
-function getFatherPassword(){
-  return new Promise(resolve=>{
-    // Check if password already verified this session
-    if(sessionStorage.getItem('draria_auth')==='ok'){resolve(true);return;}
-
-    // Get stored password from Firebase
-    db.ref('config/fatherPassword').once('value', snap=>{
-      const stored = snap.val();
-
-      if(!stored){
-        // No password set yet — prompt to create one
-        const pw = prompt('🔐 Father: Set a password for protected actions (you will need this for deletions):');
-        if(!pw||pw.trim()===''){resolve(false);return;}
-        db.ref('config/fatherPassword').set(btoa(pw.trim()));
-        sessionStorage.setItem('draria_auth','ok');
-        showOk('✅ Password set. You are now authenticated.');
-        resolve(true);
-      } else {
-        // Verify password
-        const entered = prompt('🔐 Father password required:');
-        if(!entered){resolve(false);return;}
-        if(btoa(entered.trim())===stored){
-          sessionStorage.setItem('draria_auth','ok');
-          resolve(true);
-        } else {
-          showErr('❌ Wrong password');
-          resolve(false);
-        }
-      }
-    });
+// ══════════════════════════════════════════
+//  MESSAGE EDIT / DELETE
+// ══════════════════════════════════════════
+function deleteMsg(msgId,speaker){
+  if(activeRole!==speaker){showErr('Select your role first to delete your own messages.');return;}
+  showConfirm('🗑️','Delete Message','Remove this message for everyone?',()=>{
+    db.ref(`sessions/${currentSessionId}/messages/${msgId}`).remove().catch(e=>showErr('Delete failed: '+e.message));
   });
 }
 
-// ── DELETE SESSION ──
-function confirmDeleteSession(id, name){
-  if(!confirm(`Delete session "${name}"?\nThis cannot be undone.`)) return;
-  getFatherPassword().then(ok=>{
-    if(!ok) return;
-    db.ref('sessions/'+id).remove()
-      .then(()=>showOk('Session deleted'))
-      .catch(e=>showErr('Delete failed: '+e.message));
-  });
-}
-
-// ── DELETE ALL SESSIONS ──
-function deleteAllSessions(){
-  if(!confirm('⚠️ Delete ALL sessions permanently? This cannot be undone.')) return;
-  getFatherPassword().then(ok=>{
-    if(!ok) return;
-    db.ref('sessions').remove()
-      .then(()=>{ showOk('All sessions cleared'); })
-      .catch(e=>showErr('Failed: '+e.message));
-  });
-}
-
-// ── DELETE OWN MESSAGE ──
-function deleteMsg(msgId, speaker){
-  // Only allow if active role matches speaker
-  if(activeRole !== speaker){
-    showErr('You can only delete your own messages. Select your role first.');
-    return;
-  }
-  if(!confirm('Delete this message?')) return;
-  db.ref(`sessions/${currentSessionId}/messages/${msgId}`).remove()
-    .then(()=>{
-      const el=document.getElementById('msg-'+msgId);
-      if(el) el.remove();
-      showOk('Message deleted');
-    })
-    .catch(e=>showErr('Delete failed: '+e.message));
-}
-
-// ── EDIT OWN MESSAGE ──
-function editMsg(msgId, speaker){
-  if(activeRole !== speaker){
-    showErr('You can only edit your own messages. Select your role first.');
-    return;
-  }
-  const bodyEl = document.getElementById('mbody-'+msgId);
-  if(!bodyEl) return;
-
-  const current = bodyEl.textContent;
-  const actsEl = document.getElementById('acts-'+msgId);
-
-  // Replace bubble with textarea
-  bodyEl.innerHTML = `
-    <textarea id="edit-ta-${msgId}" style="width:100%;border:2px solid var(--teal);border-radius:10px;padding:9px 12px;font-family:'Outfit',sans-serif;font-size:14px;resize:none;outline:none;min-height:60px;background:white">${escH(current)}</textarea>
-    <div style="display:flex;gap:8px;margin-top:6px">
-      <button onclick="saveEdit('${msgId}','${speaker}')" style="padding:6px 14px;background:var(--teal);color:white;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">Save</button>
-      <button onclick="cancelEdit('${msgId}','${current}')" style="padding:6px 14px;background:var(--border);color:var(--text-mid);border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">Cancel</button>
+function editMsg(msgId,speaker){
+  if(activeRole!==speaker){showErr('Select your role first to edit your own messages.');return;}
+  const bodyEl=document.getElementById('mbody-'+msgId);if(!bodyEl)return;
+  const current=bodyEl.textContent.replace(' (edited)','').trim();
+  const actsEl=document.getElementById('acts-'+msgId);
+  bodyEl.innerHTML=`<textarea id="edit-ta-${msgId}" style="width:100%;border:2px solid var(--teal);border-radius:9px;padding:8px 11px;font-family:'Outfit',sans-serif;font-size:14px;resize:none;outline:none;min-height:50px;background:white">${escH(current)}</textarea>
+    <div style="display:flex;gap:7px;margin-top:5px">
+      <button onclick="saveEdit('${msgId}')" style="padding:5px 13px;background:var(--teal);color:white;border:none;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer">Save</button>
+      <button onclick="cancelEdit('${msgId}','${escH(current)}')" style="padding:5px 13px;background:var(--border);color:var(--text-mid);border:none;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer">Cancel</button>
     </div>`;
-  if(actsEl) actsEl.style.display='none';
-  const ta=document.getElementById('edit-ta-'+msgId);
-  if(ta){ta.focus();ta.selectionStart=ta.value.length;}
+  if(actsEl)actsEl.style.display='none';
+  const ta=document.getElementById('edit-ta-'+msgId);if(ta){ta.focus();ta.selectionStart=ta.value.length;}
 }
 
-function saveEdit(msgId, speaker){
-  const ta=document.getElementById('edit-ta-'+msgId);
-  if(!ta) return;
-  const newText=ta.value.trim();
-  if(!newText){showErr('Message cannot be empty');return;}
-
-  db.ref(`sessions/${currentSessionId}/messages/${msgId}`)
-    .update({content:newText, edited:true, editedAt:Date.now()})
+function saveEdit(msgId){
+  const ta=document.getElementById('edit-ta-'+msgId);if(!ta)return;
+  const newText=ta.value.trim();if(!newText){showErr('Message cannot be empty');return;}
+  db.ref(`sessions/${currentSessionId}/messages/${msgId}`).update({content:newText,edited:true,editedAt:Date.now()})
     .then(()=>{
       const bodyEl=document.getElementById('mbody-'+msgId);
-      if(bodyEl) bodyEl.innerHTML=escH(newText)+'<span style="font-size:10px;color:var(--text-low);margin-left:6px">(edited)</span>';
-      const actsEl=document.getElementById('acts-'+msgId);
-      if(actsEl) actsEl.style.display='flex';
+      if(bodyEl)bodyEl.innerHTML=escH(newText)+'<span style="font-size:10px;color:var(--text-low);margin-left:5px">(edited)</span>';
+      const actsEl=document.getElementById('acts-'+msgId);if(actsEl)actsEl.style.display='flex';
       showOk('Message updated');
-    })
-    .catch(e=>showErr('Edit failed: '+e.message));
+    }).catch(e=>showErr('Edit failed: '+e.message));
 }
 
-function cancelEdit(msgId, original){
-  const bodyEl=document.getElementById('mbody-'+msgId);
-  if(bodyEl) bodyEl.innerHTML=escH(original);
-  const actsEl=document.getElementById('acts-'+msgId);
-  if(actsEl) actsEl.style.display='flex';
+function cancelEdit(msgId,original){
+  const bodyEl=document.getElementById('mbody-'+msgId);if(bodyEl)bodyEl.innerHTML=escH(original);
+  const actsEl=document.getElementById('acts-'+msgId);if(actsEl)actsEl.style.display='flex';
 }
 
-// ── RESET PASSWORD ──
-function resetPassword(){
-  getFatherPassword().then(ok=>{
-    if(!ok) return;
-    const newPw=prompt('Enter new Father password:');
-    if(!newPw||newPw.trim()===''){showErr('Password cannot be empty');return;}
-    db.ref('config/fatherPassword').set(btoa(newPw.trim()));
-    sessionStorage.removeItem('draria_auth');
-    showOk('Password updated');
-  });
+// ══════════════════════════════════════════
+//  MODALS & CONFIRM
+// ══════════════════════════════════════════
+function closeModal(id){document.getElementById(id).style.display='none';}
+function closeModalOut(e,id){if(e.target.id===id)closeModal(id);}
+
+function showConfirm(icon,title,desc,onConfirm){
+  document.getElementById('confirmIc').textContent=icon;
+  document.getElementById('confirmTitle').textContent=title;
+  document.getElementById('confirmDesc').textContent=desc;
+  document.getElementById('confirmBtn').onclick=()=>{closeModal('confirmModal');onConfirm();};
+  document.getElementById('confirmModal').style.display='flex';
 }
 
-function fmtAria(t){return escH(t).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>').replace(/\n\n/g,'</p><p style="margin-top:8px">').replace(/\n/g,'<br>')}
-function escH(t=''){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
-function scrollBottom(){const c=document.getElementById('msgs');if(c)setTimeout(()=>c.scrollTop=c.scrollHeight,60)}
-function flash(){const f=document.createElement('div');f.className='flash-ov';document.body.appendChild(f);setTimeout(()=>f.remove(),700)}
-function showErr(msg){showToast(msg,'err')}
-function showOk(msg){showToast(msg,'ok')}
-function showToast(msg,type){const t=document.createElement('div');t.className=`toast t-${type}`;t.textContent=(type==='err'?'⚠ ':'')+msg;document.body.appendChild(t);setTimeout(()=>t.remove(),4500)}
-function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage()}}
-function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,110)+'px'}
+// ══════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════
+function fmtAria(t){
+  return escH(t).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>').replace(/\n\n/g,'</p><p style="margin-top:7px">').replace(/\n/g,'<br>');
+}
+function escH(t=''){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function scrollBottom(){const c=document.getElementById('msgs');if(c)setTimeout(()=>c.scrollTop=c.scrollHeight,60);}
+function flash(){const f=document.createElement('div');f.className='flash-ov';document.body.appendChild(f);setTimeout(()=>f.remove(),700);}
+function showErr(msg){showToast(msg,'err');}
+function showOk(msg){showToast(msg,'ok');}
+function showToast(msg,type){
+  document.querySelectorAll('.toast').forEach(t=>t.remove());
+  const t=document.createElement('div');t.className=`toast t-${type}`;t.textContent=(type==='err'?'⚠ ':'')+msg;
+  document.body.appendChild(t);setTimeout(()=>t.remove(),4500);
+}
+function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}}
+function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,100)+'px';}
+
 function createParticles(){
   const c=document.getElementById('particles');
-  for(let i=0;i<25;i++){
+  for(let i=0;i<20;i++){
     const p=document.createElement('div');p.className='part';
     p.style.cssText=`left:${Math.random()*100}%;animation-duration:${8+Math.random()*12}s;animation-delay:-${Math.random()*20}s;width:${1+Math.random()*3}px;height:${1+Math.random()*3}px;opacity:${.2+Math.random()*.5}`;
     c.appendChild(p);
   }
 }
+
+// ══════════════════════════════════════════
+//  BOOT
+// ══════════════════════════════════════════
 (function boot(){
   createParticles();
-
-  // Cloud version: Firebase config is always pre-loaded
-  // Auto-connect immediately — no config screen needed
-  const cfg={
-    apiKey:'AIzaSyD4kOB8-gubX-zk-JrktLKkC8SC__zjo3g',
-    authDomain:'dr-aria-super-specialist.firebaseapp.com',
-    databaseURL:'https://dr-aria-super-specialist-default-rtdb.firebaseio.com',
-    projectId:'dr-aria-super-specialist',
-    appId:'1:664623654441:web:b4b12906b6a64dbf801e38',
-    storageBucket:'',messagingSenderId:''
-  };
-
-  try{
-    initFirebase(cfg);
-    // Verify server API is working
-    fetch('/health').then(r=>r.json()).then(d=>{
-      if(!d.hasKey){
-        showErr('Server config issue: ANTHROPIC_API_KEY not set in Render environment. Contact admin.');
-      }
-    }).catch(()=>{});
-  }catch(e){
-    showErr('Connection error: '+e.message);
-  }
+  // Hidden field to track training save mode
+  const inp=document.createElement('input');
+  inp.type='hidden';inp.id='tr-save-mode';inp.value='session';
+  document.body.appendChild(inp);
+  initFirebase();
 })();
 </script>
 </body>
