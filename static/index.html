@@ -467,6 +467,7 @@ textarea.ta-fac{border-color:var(--facilitator);box-shadow:0 0 0 3px var(--facil
       <button class="btn-fac-train" onclick="openMasterTraining()">🎯 Master Train Dr. Aria</button>
       <button class="btn-fac-settings" onclick="changeMasterPassword()">🔐 Change Password</button>
       <button class="btn-fac-danger" onclick="deleteAllSessions()">🗑️ Clear All Sessions</button>
+      <button class="btn-fac-settings" onclick="openRecovery()">🔄 Recover Sessions</button>
       <button class="btn-outline" onclick="showScreen('sessionScreen')" style="margin-left:auto">← Exit Portal</button>
     </div>
     <div id="facSessionsList"><div class="sess-empty"><div class="sess-empty-art">📋</div><h3>No sessions yet</h3></div></div>
@@ -517,9 +518,10 @@ textarea.ta-fac{border-color:var(--facilitator);box-shadow:0 0 0 3px var(--facil
     <div class="c-av">A</div>
     <div class="c-title">
       <h2 id="chatTitle">Session</h2>
-      <p><span class="chat-ld"></span><span id="chatSub">Live · syncing</span></p>
+      <p><span class="chat-ld" id="chatLd"></span><span id="chatSub">Live · syncing</span></p>
     </div>
     <div class="chat-acts">
+      <button class="cbtn" onclick="manualReload()" title="Reload messages if any disappeared">🔄</button>
       <button class="cbtn train" onclick="openTraining()">🎯 <span>Train Dr. Aria</span><span id="trainBadge" style="display:none" class="t-badge">✓</span></button>
     </div>
   </div>
@@ -727,8 +729,17 @@ function initFirebase(){
     if(!firebase.apps.length)firebase.initializeApp(FB_CFG);
     db=firebase.database();
     db.ref('.info/connected').on('value',s=>{
-      const el=document.getElementById('chatSub');
-      if(el)el.textContent=s.val()?'Live · syncing across devices':'Offline — reconnecting...';
+      const sub=document.getElementById('chatSub');
+      const dot=document.getElementById('chatLd');
+      if(s.val()){
+        if(sub)sub.textContent='Live · syncing across devices';
+        if(dot){dot.style.background='#22C55E';}
+      } else {
+        if(sub)sub.textContent='⚠️ Reconnecting — your messages are safe...';
+        if(dot){dot.style.background='#F59E0B';}
+        // On reconnect, reload any missing messages
+        if(currentSessionId) setTimeout(()=>reloadMissingMessages(currentSessionId),2000);
+      }
     });
     // Real-time global training sync
     db.ref('masterTraining').on('value',snap=>{
@@ -814,7 +825,22 @@ function loadSessionsList(){
   db.ref('sessions').orderByChild('lastActivity').on('value',snap=>{
     const list=[];
     snap.forEach(c=>list.unshift({id:c.key,...c.val()}));
-    renderMemberSessions(list);
+    // Never show empty list if Firebase sent empty during reconnect
+    // Only update if we have real data OR we are connected
+    if(list.length>0){
+      window._lastKnownSessions=list;
+      renderMemberSessions(list);
+    } else {
+      // Check if we are actually connected
+      db.ref('.info/connected').once('value',connSnap=>{
+        if(connSnap.val()===true){
+          // Genuinely empty
+          window._lastKnownSessions=[];
+          renderMemberSessions([]);
+        }
+        // If disconnected, keep showing last known sessions
+      });
+    }
   });
 }
 
@@ -901,7 +927,13 @@ function loadFacilitatorSessionsList(){
   db.ref('sessions').orderByChild('lastActivity').on('value',snap=>{
     const list=[];
     snap.forEach(c=>list.unshift({id:c.key,...c.val()}));
-    renderFacilitatorSessions(list);
+    if(list.length>0){
+      renderFacilitatorSessions(list);
+    } else {
+      db.ref('.info/connected').once('value',connSnap=>{
+        if(connSnap.val()===true) renderFacilitatorSessions([]);
+      });
+    }
   });
 }
 
@@ -1048,14 +1080,18 @@ async function saveEditSession(){
 
 function deleteSession(id,name){
   showConfirm('🗑️','Delete Session','Delete "'+name+'"? This cannot be undone.',()=>{
-    db.ref('sessions/'+id).remove()
-      .then(()=>showOk('Session deleted'))
-      .catch(e=>showErr('Delete failed: '+e.message));
+    requireMasterPw('Confirm Delete','Enter master password to delete "'+name+'".',()=>{
+      db.ref('sessions/'+id).remove()
+        .then(()=>showOk('Session "'+name+'" deleted'))
+        .catch(e=>showErr('Delete failed: '+e.message));
+    });
   });
 }
 
 function deleteAllSessions(){
-  showConfirm('⚠️','Delete ALL Sessions','This will permanently delete all sessions and all messages. Cannot be undone.',()=>{
+  const typed = prompt('⚠️ DANGER: This deletes ALL sessions permanently.\n\nType DELETE (in capitals) to confirm:');
+  if(typed !== 'DELETE'){showErr('Cancelled — you must type DELETE exactly');return;}
+  requireMasterPw('Final Confirmation','Enter master password to permanently delete all sessions.',()=>{
     db.ref('sessions').remove()
       .then(()=>showOk('All sessions cleared'))
       .catch(e=>showErr('Failed: '+e.message));
@@ -1110,19 +1146,91 @@ function goToSessions(){
 //  FIREBASE MESSAGES
 // ══════════════════════════════════════════
 function subscribeMessages(id){
+  // ── child_added: render new messages ──
   db.ref(`sessions/${id}/messages`).orderByChild('timestamp').on('child_added',snap=>{
     const msg={id:snap.key,...snap.val()};
-    if(!renderedIds.has(msg.id)){renderedIds.add(msg.id);renderMsg(msg);scrollBottom();}
+    if(!renderedIds.has(msg.id)){
+      renderedIds.add(msg.id);
+      renderMsg(msg);
+      scrollBottom();
+      backupMessageLocally(id,msg.speaker,msg.content,msg.timestamp);
+    } else {
+      // ID in set but DOM element missing (happens after Firebase reconnect)
+      // Re-render if the DOM element has gone missing
+      if(!document.getElementById('msg-'+msg.id)){
+        renderMsg(msg);
+        scrollBottom();
+      }
+    }
   });
+
+  // ── child_changed: handle edits ──
   db.ref(`sessions/${id}/messages`).on('child_changed',snap=>{
     const msg={id:snap.key,...snap.val()};
     const bodyEl=document.getElementById('mbody-'+msg.id);
-    if(bodyEl&&msg.edited)bodyEl.innerHTML=escH(msg.content)+'<span style="font-size:10px;color:var(--text-low);margin-left:5px">(edited)</span>';
+    if(bodyEl&&msg.edited)
+      bodyEl.innerHTML=escH(msg.content)+'<span style="font-size:10px;color:var(--text-low);margin-left:5px">(edited)</span>';
   });
+
+  // ── child_removed: remove DOM AND remove from renderedIds ──
+  // so if Firebase re-adds the message, it will be re-rendered
   db.ref(`sessions/${id}/messages`).on('child_removed',snap=>{
-    const el=document.getElementById('msg-'+snap.key);if(el)el.remove();
+    const el=document.getElementById('msg-'+snap.key);
+    if(el)el.remove();
+    renderedIds.delete(snap.key); // ← KEY FIX: allow re-render if Firebase re-adds
   });
+
+  // ── typing indicator ──
   db.ref(`sessions/${id}/typing`).on('value',snap=>snap.val()?showTyping():hideTyping());
+
+  // ── Monitor Firebase connection: on reconnect, reload any missing messages ──
+  db.ref('.info/connected').on('value', snap=>{
+    if(snap.val()===true && currentSessionId===id){
+      // We just reconnected — check for any messages missing from DOM
+      setTimeout(()=>reloadMissingMessages(id), 1000);
+    }
+  });
+}
+
+
+function manualReload(){
+  if(!currentSessionId){showErr('No active session');return;}
+  showOk('Reloading messages...');
+  // Clear rendered set and reload all
+  renderedIds=new Set();
+  document.getElementById('msgs').innerHTML='';
+  db.ref(`sessions/${currentSessionId}/messages`).orderByChild('timestamp').once('value',snap=>{
+    snap.forEach(c=>{
+      const msg={id:c.key,...c.val()};
+      renderedIds.add(msg.id);
+      renderMsg(msg);
+    });
+    scrollBottom();
+    showOk('Messages reloaded ✅');
+  });
+}
+
+function reloadMissingMessages(id){
+  if(currentSessionId!==id)return;
+  db.ref(`sessions/${id}/messages`).orderByChild('timestamp').once('value',snap=>{
+    let anyMissing=false;
+    snap.forEach(c=>{
+      if(!document.getElementById('msg-'+c.key)){
+        anyMissing=true;
+        const msg={id:c.key,...c.val()};
+        if(!renderedIds.has(msg.id)){
+          renderedIds.add(msg.id);
+          renderMsg(msg);
+        } else {
+          // Was in set but DOM gone — re-render
+          renderedIds.delete(msg.id);
+          renderedIds.add(msg.id);
+          renderMsg(msg);
+        }
+      }
+    });
+    if(anyMissing)scrollBottom();
+  });
 }
 
 async function ariaOpening(id){
@@ -1169,8 +1277,28 @@ async function buildHist(id){
 }
 
 async function saveMsg(id,speaker,content){
-  await db.ref(`sessions/${id}/messages`).push({speaker,content,timestamp:Date.now()});
-  db.ref(`sessions/${id}`).update({lastActivity:Date.now(),messageCount:firebase.database.ServerValue.increment(1)});
+  const ts=Date.now();
+  await db.ref(`sessions/${id}/messages`).push({speaker,content,timestamp:ts});
+  db.ref(`sessions/${id}`).update({lastActivity:ts,messageCount:firebase.database.ServerValue.increment(1)});
+  // ── Auto-backup to localStorage ──
+  backupMessageLocally(id,speaker,content,ts);
+}
+
+function backupMessageLocally(sessionId,speaker,content,timestamp){
+  try{
+    const key='draria_backup_'+sessionId;
+    const existing=JSON.parse(localStorage.getItem(key)||'{"msgs":[],"name":""}');
+    existing.msgs.push({speaker,content,timestamp});
+    existing.name=currentSessionData?.name||sessionId;
+    existing.lastActivity=timestamp;
+    // Keep last 500 messages
+    if(existing.msgs.length>500)existing.msgs=existing.msgs.slice(-500);
+    localStorage.setItem(key,JSON.stringify(existing));
+    // Keep index of backed-up sessions
+    const idx=JSON.parse(localStorage.getItem('draria_backup_index')||'[]');
+    if(!idx.includes(sessionId))idx.push(sessionId);
+    localStorage.setItem('draria_backup_index',JSON.stringify(idx));
+  }catch(e){console.warn('Backup failed:',e);}
 }
 
 async function setTyping(id,val){await db.ref(`sessions/${id}/typing`).set(val);}
@@ -1539,6 +1667,101 @@ function createParticles(){
   }
 }
 
+
+// ══════════════════════════════════════════
+//  SESSION RECOVERY FROM LOCAL BACKUP
+// ══════════════════════════════════════════
+function openRecovery(){
+  const idx=JSON.parse(localStorage.getItem('draria_backup_index')||'[]');
+  const el=document.getElementById('recoveryList');
+
+  if(!idx.length){
+    el.innerHTML='<p style="text-align:center;color:var(--text-low);padding:20px">No local backups found.<br>Backups are created automatically going forward.</p>';
+    document.getElementById('recoveryModal').style.display='flex';
+    return;
+  }
+
+  let html='';
+  idx.forEach(sessId=>{
+    try{
+      const backup=JSON.parse(localStorage.getItem('draria_backup_'+sessId)||'null');
+      if(!backup)return;
+      const d=new Date(backup.lastActivity).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+      const msgCount=backup.msgs.length;
+      html+=`
+      <div style="border:1.5px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px">
+        <div style="flex:1">
+          <div style="font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--navy)">${escH(backup.name||sessId)}</div>
+          <div style="font-size:12px;color:var(--text-low);margin-top:3px">📅 ${d} · 💬 ${msgCount} messages backed up</div>
+        </div>
+        <button onclick="restoreSession('${sessId}')" style="padding:8px 16px;background:linear-gradient(135deg,var(--teal),var(--teal2));color:white;border:none;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer">Restore</button>
+        <button onclick="viewBackup('${sessId}')" style="padding:8px 14px;background:var(--cream);border:1.5px solid var(--border);border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text-mid)">View</button>
+      </div>`;
+    }catch(e){}
+  });
+
+  el.innerHTML=html||'<p style="text-align:center;color:var(--text-low);padding:20px">No valid backups found.</p>';
+  document.getElementById('recoveryModal').style.display='flex';
+}
+
+async function restoreSession(sessId){
+  try{
+    const backup=JSON.parse(localStorage.getItem('draria_backup_'+sessId)||'null');
+    if(!backup||!backup.msgs.length){showErr('No backup data found for this session');return;}
+
+    showOk('Restoring session... please wait');
+    closeModal('recoveryModal');
+
+    // Create session in Firebase
+    const ref=db.ref('sessions/'+sessId);
+    await ref.set({
+      name:backup.name||'Recovered Session',
+      password:'000000',
+      roles:['father','mother','daughter','son'],
+      createdAt:backup.msgs[0]?.timestamp||Date.now(),
+      lastActivity:backup.lastActivity||Date.now(),
+      messageCount:backup.msgs.length,
+      recovered:true
+    });
+
+    // Restore messages
+    let count=0;
+    for(const msg of backup.msgs){
+      await db.ref('sessions/'+sessId+'/messages').push({
+        speaker:msg.speaker,
+        content:msg.content,
+        timestamp:msg.timestamp
+      });
+      count++;
+    }
+
+    showOk('✅ Session restored: '+backup.name+' ('+count+' messages). Password reset to 000000 — change it in Edit.');
+  }catch(e){
+    showErr('Restore failed: '+e.message);
+  }
+}
+
+function viewBackup(sessId){
+  try{
+    const backup=JSON.parse(localStorage.getItem('draria_backup_'+sessId)||'null');
+    if(!backup)return;
+    let txt=backup.name+'\n'+'─'.repeat(40)+'\n\n';
+    backup.msgs.forEach(m=>{
+      const cfg=RC[m.speaker];
+      const label=cfg?cfg.label:m.speaker;
+      const time=new Date(m.timestamp).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+      txt+=`[${label} · ${time}]\n${m.content}\n\n`;
+    });
+    const blob=new Blob([txt],{type:'text/plain'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;a.download=(backup.name||'session')+'_backup.txt';
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showOk('Backup downloaded as text file');
+  }catch(e){showErr('Download failed: '+e.message);}
+}
+
 // ══════════════════════════════════════════
 //  BOOT
 // ══════════════════════════════════════════
@@ -1551,5 +1774,18 @@ function createParticles(){
   initFirebase();
 })();
 </script>
+
+<!-- Recovery Modal -->
+<div id="recoveryModal" class="modal-ov" style="display:none" onclick="closeModalOut(event,'recoveryModal')">
+  <div class="modal-c" style="max-width:520px">
+    <div class="modal-ic">🔄</div>
+    <h3>Recover Sessions from Backup</h3>
+    <p>Sessions are automatically backed up to your browser. Select a session to restore it to Firebase.</p>
+    <div id="recoveryList" style="max-height:300px;overflow-y:auto;margin-bottom:16px"></div>
+    <div class="modal-btns">
+      <button class="mb-cancel" onclick="closeModal('recoveryModal')">Close</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
