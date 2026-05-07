@@ -1707,317 +1707,264 @@ function createParticles(){
 // ══════════════════════════════════════════
 async function exportSessionPDF(sessionId, sessData){
   if(!sessionId){showErr('No session selected');return;}
-  // Handle sessData being string-encoded from facilitator portal onclick
-  if(typeof sessData === 'string'){
-    try{ sessData=JSON.parse(sessData); }catch(e){ sessData={}; }
-  }
-  sessData = sessData || {};
-  showOk('Building PDF... please wait');
+  if(typeof sessData==='string'){try{sessData=JSON.parse(sessData);}catch(e){sessData={};}}
+  sessData=sessData||{};
+  showOk('Fetching session data...');
 
   try{
-    // If no sessData name, fetch from Firebase
-    if(!sessData.name){
-      const sSnap = await db.ref('sessions/'+sessionId).once('value');
-      const sData = sSnap.val()||{};
-      sessData = {...sData, ...sessData};
-    }
-    // Fetch all messages from Firebase
-    // No orderByChild — sort in JS to avoid requiring Firebase index
-    const snap = await db.ref(`sessions/${sessionId}/messages`).once('value');
-    const msgs = [];
-    snap.forEach(c => msgs.push({id:c.key,...c.val()}));
+    // ── 1. Get session metadata ──
+    const sSnap = await db.ref('sessions/'+sessionId).once('value');
+    const sData = sSnap.val()||{};
+    const sessName = sData.name || sessData.name || 'Session';
+    const roles    = sData.roles || sessData.roles || [];
+
+    // ── 2. Fetch ALL messages (no orderByChild = no index needed) ──
+    const mSnap = await db.ref('sessions/'+sessionId+'/messages').once('value');
+    let msgs = [];
+    mSnap.forEach(c => msgs.push({id:c.key,...c.val()}));
     msgs.sort((a,b)=>(a.timestamp||0)-(b.timestamp||0));
-    console.log('PDF: fetched', msgs.length, 'messages');
 
-    if(!msgs.length){showErr('No messages in this session to export');return;}
+    // ── 3. Fallback: check localStorage backup if Firebase returned <2 messages ──
+    if(msgs.length < 2){
+      try{
+        const backup = JSON.parse(localStorage.getItem('draria_backup_'+sessionId)||'null');
+        if(backup && backup.msgs && backup.msgs.length > msgs.length){
+          msgs = backup.msgs.sort((a,b)=>(a.timestamp||0)-(b.timestamp||0));
+          console.log('PDF: using localStorage backup,', msgs.length, 'messages');
+        }
+      }catch(e){}
+    }
 
-    const sessName = sessData?.name || 'Session';
-    const roles = sessData?.roles || ['father','mother','daughter','son'];
-    const firstMsg = new Date(msgs[0].timestamp);
-    const lastMsg  = new Date(msgs[msgs.length-1].timestamp);
-    const dateStr  = firstMsg.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-    const timeStr  = firstMsg.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) +
-                     ' — ' + lastMsg.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    console.log('PDF: total messages =', msgs.length);
 
-    // Role config for PDF
-    const roleColors = {
-      father:   {bg:'#DBEAFE',border:'#93C5FD',text:'#1E40AF',label:'Father',   icon:'🧔'},
-      mother:   {bg:'#FCE7F3',border:'#F9A8D4',text:'#9D174D',label:'Mother',   icon:'👩'},
-      daughter: {bg:'#EDE9FE',border:'#C4B5FD',text:'#5B21B6',label:'Daughter', icon:'👧'},
-      son:      {bg:'#FFEDD5',border:'#FDBA74',text:'#9A3412',label:'Son',       icon:'👦'},
-      facilitator:{bg:'#D4EEEF',border:'#6EE7B7',text:'#065F46',label:'Facilitator',icon:'🎙️'},
-      aria:     {bg:'#FFFFFF',border:'#E2E8F0',text:'#0A5C63',label:'Dr. Aria', icon:'✦'}
+    if(!msgs.length){
+      showErr('No messages found in this session. If messages exist, try refreshing first.');
+      return;
+    }
+
+    // ── 4. Stats ──
+    const ariaCount   = msgs.filter(m=>m.speaker==='aria').length;
+    const memberCount = msgs.length - ariaCount;
+    const firstTs = msgs[0].timestamp;
+    const lastTs  = msgs[msgs.length-1].timestamp;
+    const dateStr = new Date(firstTs).toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+    const timeStr = new Date(firstTs).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})
+                  + ' — ' + new Date(lastTs).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+
+    // ── 5. Role colors ──
+    const RC_PDF = {
+      father:   {bg:'#DBEAFE',bd:'#93C5FD',tx:'#1E40AF',lb:'Father',   ic:'🧔'},
+      mother:   {bg:'#FCE7F3',bd:'#F9A8D4',tx:'#9D174D',lb:'Mother',   ic:'👩'},
+      daughter: {bg:'#EDE9FE',bd:'#C4B5FD',tx:'#5B21B6',lb:'Daughter', ic:'👧'},
+      son:      {bg:'#FFEDD5',bd:'#FDBA74',tx:'#9A3412',lb:'Son',      ic:'👦'},
+      facilitator:{bg:'#D4EEEF',bd:'#6EE7B7',tx:'#065F46',lb:'Facilitator',ic:'🎙️'},
+      aria:     {bg:'#FFFFFF',bd:'#E2E8F0',tx:'#0A5C63',lb:'Dr. Aria', ic:'✦'}
     };
 
-    // Count messages per speaker
+    // ── 6. Participant chips ──
     const counts = {};
-    msgs.forEach(m => { counts[m.speaker]=(counts[m.speaker]||0)+1; });
+    msgs.forEach(m=>{counts[m.speaker]=(counts[m.speaker]||0)+1;});
+    const participantsHtml = Object.entries(counts)
+      .filter(([k])=>k!=='aria')
+      .map(([k,v])=>{
+        const rc=RC_PDF[k]||{bg:'#f0f0f0',tx:'#333',ic:'👤',lb:k};
+        return `<div class="pchip" style="background:${rc.bg};color:${rc.tx};border:1.5px solid ${rc.bd||'#ddd'}">${rc.ic} ${rc.lb} <span class="pcnt">${v}</span></div>`;
+      }).join('');
 
-    // Build message HTML
-    let messagesHtml = '';
+    // ── 7. Build messages HTML ──
+    let msgsHtml = '';
     let lastDate = '';
-    msgs.forEach((msg, idx) => {
-      const rc = roleColors[msg.speaker] || roleColors.aria;
-      const isAria = msg.speaker === 'aria';
+    msgs.forEach((msg,idx)=>{
+      const isAria = msg.speaker==='aria';
+      const rc = RC_PDF[msg.speaker]||RC_PDF.aria;
       const time = new Date(msg.timestamp).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
       const msgDate = new Date(msg.timestamp).toLocaleDateString('en-IN',{day:'numeric',month:'short'});
 
-      // Date divider
-      if(msgDate !== lastDate){
-        lastDate = msgDate;
-        if(idx > 0) messagesHtml += `<div class="date-div">${msgDate}</div>`;
+      if(msgDate!==lastDate){
+        if(idx>0) msgsHtml+=`<div class="ddiv">${msgDate}</div>`;
+        lastDate=msgDate;
       }
 
-      // Parse directed tag in Aria messages
-      let content = msg.content;
-      let directedHtml = '';
+      let content = msg.content||'';
+      let dirHtml = '';
+
       if(isAria){
-        const dm = msg.content.match(/➤\s*\*\*([^*]+)\*\*,?\s*([\s\S]*?)$/);
+        // Extract directed line
+        const dm = content.match(/➤\s*\*\*([^*]+)\*\*,?\s*([\s\S]*?)$/);
         if(dm){
-          content = msg.content.slice(0,dm.index).trim();
-          directedHtml = `<div class="directed-tag">➤ <strong>${dm[1]}</strong>: ${dm[2].trim()}</div>`;
+          content = content.slice(0,dm.index).trim();
+          dirHtml = `<div class="dtag">➤ <strong>${dm[1]}</strong>: ${dm[2].trim()}</div>`;
         }
-        // Format bold/italic
+        // Convert markdown to HTML
         content = content
+          .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+          // headings
+          .replace(/^### (.+)$/gm,'<h4>$1</h4>')
+          .replace(/^## (.+)$/gm,'<h3>$1</h3>')
+          .replace(/^# (.+)$/gm,'<h2>$1</h2>')
+          // horizontal rule
+          .replace(/^---+$/gm,'<hr>')
+          // blockquote
+          .replace(/^&gt; (.+)$/gm,'<blockquote>$1</blockquote>')
+          // bold / italic
           .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
           .replace(/\*(.+?)\*/g,'<em>$1</em>')
+          // paragraphs
           .replace(/\n\n/g,'</p><p>')
           .replace(/\n/g,'<br>');
+        content = '<p>'+content+'</p>';
       } else {
-        content = content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        content = (msg.content||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
       }
 
-      const align = isAria ? 'left' : 'right';
-      const editedTag = msg.edited ? '<span class="edited-tag">(edited)</span>' : '';
+      const editTag = msg.edited?'<span class="etag">(edited)</span>':'';
+      const align = isAria?'left':'right';
 
-      messagesHtml += `
-        <div class="msg-wrap msg-${align}">
-          <div class="msg-bubble" style="background:${rc.bg};border-color:${rc.border}">
-            <div class="msg-header" style="color:${rc.text}">
-              <span class="msg-icon">${rc.icon}</span>
-              <span class="msg-name">${rc.label}</span>
-              <span class="msg-time">${time}</span>
-              ${editedTag}
+      msgsHtml += `
+        <div class="mwrap m${align}">
+          <div class="mbub" style="background:${rc.bg};border-color:${rc.bd}">
+            <div class="mhdr" style="color:${rc.tx}">
+              <span>${rc.ic}</span>
+              <span class="mname">${rc.lb}</span>
+              <span class="mtime">${time}${editTag}</span>
             </div>
-            <div class="msg-content">${isAria?'<p>'+content+'</p>':content}</div>
-            ${directedHtml}
+            <div class="mcnt">${content}</div>
+            ${dirHtml}
           </div>
         </div>`;
     });
 
-    // Participants summary
-    const participantsHtml = Object.entries(counts)
-      .filter(([k])=>k!=='aria')
-      .map(([k,v])=>{
-        const rc = roleColors[k]||{bg:'#f5f5f5',text:'#333',icon:'👤',label:k};
-        return `<div class="part-chip" style="background:${rc.bg};color:${rc.text};border:1.5px solid ${rc.border||'#ddd'}">${rc.icon} ${rc.label} <span class="part-count">${v}</span></div>`;
-      }).join('');
-
-    // Fetch training for this session from Firebase
-    let sessionTraining = trainingData; // use current if in chat
-    if(!currentSessionId || currentSessionId !== sessionId){
-      const tSnap = await db.ref(`sessions/${sessionId}/training`).once('value');
-      sessionTraining = tSnap.val() || {};
-    }
-
-    // Training context summary
+    // ── 8. Training context ──
     let trainingHtml = '';
-    if(Object.keys(sessionTraining).some(k=>sessionTraining[k]&&sessionTraining[k].length)){
-      const trainingData = sessionTraining; // local alias for template below
-      const sections = [
-        {key:'tr_father',  label:'Father Profile'},
-        {key:'tr_mother',  label:'Mother Profile'},
-        {key:'tr_daughter',label:'Daughter Profile'},
-        {key:'tr_son',     label:'Son Profile'},
-        {key:'tr_focus',   label:'Session Focus'},
-        {key:'tr_outcomes',label:'Desired Outcomes'},
-        {key:'tr_background',label:'Background'},
-        {key:'tr_prev',    label:'Previous Session'},
-        {key:'tr_instructions',label:'Dr. Aria Instructions'},
-      ];
-      const filled = sections.filter(s=>sessionTraining[s.key]&&sessionTraining[s.key].length>0);
-      if(filled.length){
-        trainingHtml = `
-          <div class="section context-section">
-            <h2 class="section-title">🎯 Session Context (Training Applied)</h2>
-            ${filled.map(s=>`
-              <div class="context-item">
-                <div class="context-label">${s.label}</div>
-                <div class="context-value">${(sessionTraining[s.key]||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
-              </div>`).join('')}
-          </div>`;
-      }
+    const tSnap = await db.ref('sessions/'+sessionId+'/training').once('value');
+    const td = tSnap.val()||{};
+    const tSections=[
+      {k:'tr_father',l:'Father Profile'},{k:'tr_mother',l:'Mother Profile'},
+      {k:'tr_daughter',l:'Daughter Profile'},{k:'tr_son',l:'Son Profile'},
+      {k:'tr_focus',l:'Session Focus'},{k:'tr_outcomes',l:'Desired Outcomes'},
+      {k:'tr_background',l:'Background'},{k:'tr_prev',l:'Previous Session'},
+      {k:'tr_instructions',l:'Dr. Aria Instructions'},
+    ];
+    const tFilled = tSections.filter(s=>td[s.k]&&td[s.k].length>0);
+    if(tFilled.length){
+      trainingHtml=`<div class="tsect">
+        <h2 class="sh">🎯 Session Context</h2>
+        ${tFilled.map(s=>`<div class="ti"><div class="tl">${s.l}</div><div class="tv">${(td[s.k]||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div></div>`).join('')}
+      </div>`;
     }
 
-    // Aria stats
-    const ariaCount = counts['aria']||0;
-    const memberCount = msgs.length - ariaCount;
-
-    // Full HTML document
-    const printDoc = `<!DOCTYPE html>
+    // ── 9. Build full HTML document ──
+    const doc = `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <title>Dr. Aria · ${sessName}</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Outfit',sans-serif;background:#F8F9FF;color:#1A1F3A;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-
-  /* COVER PAGE */
-  .cover{
-    min-height:100vh;
-    background:linear-gradient(160deg,#1A1F3A 0%,#0A5C63 60%,#0E7E88 100%);
-    display:flex;flex-direction:column;align-items:center;justify-content:center;
-    text-align:center;padding:60px 40px;position:relative;overflow:hidden;
-    page-break-after:always;
-  }
-  .cover::before{content:'';position:absolute;top:-100px;right:-100px;width:400px;height:400px;background:radial-gradient(circle,rgba(201,150,58,.25),transparent 70%);border-radius:50%}
-  .cover::after{content:'';position:absolute;bottom:-80px;left:-80px;width:300px;height:300px;background:radial-gradient(circle,rgba(14,126,136,.4),transparent 70%);border-radius:50%}
-  .cover-badge{background:rgba(201,150,58,.2);border:1px solid rgba(201,150,58,.4);border-radius:30px;padding:8px 20px;color:#E8B55A;font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-bottom:32px;display:inline-block;position:relative;z-index:1}
-  .cover-av{width:110px;height:110px;background:linear-gradient(135deg,#0A5C63,#0E7E88,#C9963A);border-radius:50%;margin:0 auto 24px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:46px;font-weight:700;color:white;font-style:italic;box-shadow:0 0 0 6px rgba(201,150,58,.3),0 20px 50px rgba(0,0,0,.4);position:relative;z-index:1}
-  .cover-dr{font-family:'Playfair Display',serif;font-size:52px;font-weight:900;color:white;line-height:1;position:relative;z-index:1;margin-bottom:8px}
-  .cover-sub{font-size:16px;color:rgba(255,255,255,.55);letter-spacing:.08em;text-transform:uppercase;margin-bottom:48px;position:relative;z-index:1}
-  .cover-divider{width:80px;height:3px;background:linear-gradient(90deg,#C9963A,#E8B55A);border-radius:2px;margin:0 auto 40px;position:relative;z-index:1}
-  .cover-sess-name{font-family:'Playfair Display',serif;font-size:34px;font-weight:700;color:white;margin-bottom:16px;position:relative;z-index:1;line-height:1.2}
-  .cover-meta{font-size:15px;color:rgba(255,255,255,.65);line-height:2;position:relative;z-index:1}
-  .cover-meta strong{color:rgba(255,255,255,.9);font-weight:600}
-
-  /* STATS CARDS */
-  .cover-stats{display:flex;gap:20px;margin-top:40px;position:relative;z-index:1;flex-wrap:wrap;justify-content:center}
-  .stat-card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:16px;padding:18px 28px;text-align:center;backdrop-filter:blur(10px);min-width:120px}
-  .stat-n{font-family:'Playfair Display',serif;font-size:36px;font-weight:700;background:linear-gradient(135deg,#C9963A,#E8B55A);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-  .stat-l{font-size:12px;color:rgba(255,255,255,.5);margin-top:4px}
-
-  /* PARTICIPANTS */
-  .cover-participants{display:flex;gap:10px;margin-top:28px;flex-wrap:wrap;justify-content:center;position:relative;z-index:1}
-  .part-chip{padding:7px 16px;border-radius:24px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px}
-  .part-count{background:rgba(0,0,0,.15);border-radius:12px;padding:1px 8px;font-size:11px}
-
-  /* CONTENT AREA */
-  .content{max-width:820px;margin:0 auto;padding:40px 32px}
-
-  /* SECTIONS */
-  .section{margin-bottom:40px}
-  .section-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:#1A1F3A;margin-bottom:20px;padding-bottom:10px;border-bottom:2px solid #E8E2D9;display:flex;align-items:center;gap:10px}
-
-  /* CONTEXT SECTION */
-  .context-section{background:linear-gradient(135deg,#FDF3E0,#FEF9ED);border:1.5px solid rgba(201,150,58,.3);border-radius:16px;padding:24px}
-  .context-item{margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid rgba(201,150,58,.15)}
-  .context-item:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
-  .context-label{font-size:11px;font-weight:700;color:#7A5A1A;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
-  .context-value{font-size:13.5px;color:#3D2E0A;line-height:1.6}
-
-  /* DATE DIVIDER */
-  .date-div{text-align:center;margin:20px 0 14px;font-size:12px;font-weight:600;color:#8A8FA8;position:relative}
-  .date-div::before,.date-div::after{content:'';position:absolute;top:50%;width:42%;height:1px;background:#E8E2D9}
-  .date-div::before{left:0}.date-div::after{right:0}
-
-  /* MESSAGES */
-  .msg-wrap{display:flex;margin-bottom:14px}
-  .msg-left{justify-content:flex-start}
-  .msg-right{justify-content:flex-end}
-  .msg-bubble{max-width:75%;border-radius:16px;border:1.5px solid;padding:14px 16px;box-shadow:0 2px 10px rgba(0,0,0,.06)}
-  .msg-left .msg-bubble{border-radius:4px 16px 16px 16px}
-  .msg-right .msg-bubble{border-radius:16px 4px 16px 16px}
-  .msg-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-  .msg-icon{font-size:16px}
-  .msg-name{font-weight:700;font-size:13px}
-  .msg-time{margin-left:auto;font-size:11px;opacity:.6;font-weight:400}
-  .edited-tag{font-size:10px;color:#8A8FA8;font-style:italic;margin-left:4px}
-  .msg-content{font-size:14px;line-height:1.7;color:#1A1F3A}
-  .msg-content p{margin-bottom:6px}.msg-content p:last-child{margin-bottom:0}
-  .msg-content strong{font-weight:700}.msg-content em{font-style:italic;opacity:.8}
-
-  /* DIRECTED TAG */
-  .directed-tag{margin-top:10px;padding:8px 12px;background:rgba(10,92,99,.08);border-left:3px solid #0A5C63;border-radius:0 8px 8px 0;font-size:13px;color:#0A5C63;font-weight:600;line-height:1.5}
-  .directed-tag strong{font-weight:700}
-
-  /* FOOTER */
-  .footer{background:linear-gradient(135deg,#1A1F3A,#0D2A4A);padding:32px;text-align:center;margin-top:40px;border-radius:16px}
-  .footer h3{font-family:'Playfair Display',serif;font-size:20px;color:white;margin-bottom:8px}
-  .footer p{font-size:12px;color:rgba(255,255,255,.45);line-height:1.7}
-  .footer-quote{font-family:'Playfair Display',serif;font-style:italic;font-size:14px;color:rgba(255,255,255,.65);margin:16px auto;max-width:500px;line-height:1.7}
-
-  /* PRINT RULES */
-  @media print{
-    body{background:white}
-    .cover{min-height:100vh;page-break-after:always;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-    .msg-bubble{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-    .context-section{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-    .footer{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-    .msg-wrap{page-break-inside:avoid}
-    .section{page-break-inside:avoid}
-    @page{margin:15mm;size:A4}
-  }
-  @media screen{
-    .print-btn{position:fixed;bottom:30px;right:30px;padding:14px 28px;background:linear-gradient(135deg,#0A5C63,#0E7E88);color:white;border:none;border-radius:14px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 8px 28px rgba(10,92,99,.4);z-index:999;transition:all .2s}
-    .print-btn:hover{transform:translateY(-3px);box-shadow:0 14px 36px rgba(10,92,99,.5)}
-  }
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Outfit',sans-serif;background:#F8F9FF;color:#1A1F3A;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+/* COVER */
+.cover{min-height:100vh;background:linear-gradient(160deg,#1A1F3A 0%,#0A5C63 60%,#0E7E88 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 40px;position:relative;overflow:hidden;page-break-after:always}
+.cover::before{content:'';position:absolute;top:-100px;right:-100px;width:400px;height:400px;background:radial-gradient(circle,rgba(201,150,58,.25),transparent 70%);border-radius:50%}
+.cbadge{background:rgba(201,150,58,.2);border:1px solid rgba(201,150,58,.4);border-radius:30px;padding:8px 20px;color:#E8B55A;font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin-bottom:32px;display:inline-block;position:relative;z-index:1}
+.cav{width:110px;height:110px;background:linear-gradient(135deg,#0A5C63,#0E7E88,#C9963A);border-radius:50%;margin:0 auto 24px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:46px;font-weight:700;color:white;font-style:italic;box-shadow:0 0 0 6px rgba(201,150,58,.3),0 20px 50px rgba(0,0,0,.4);position:relative;z-index:1}
+.cname{font-family:'Playfair Display',serif;font-size:52px;font-weight:900;color:white;line-height:1;position:relative;z-index:1;margin-bottom:6px}
+.csub{font-size:14px;color:rgba(255,255,255,.5);letter-spacing:.08em;text-transform:uppercase;margin-bottom:40px;position:relative;z-index:1}
+.cdiv{width:70px;height:3px;background:linear-gradient(90deg,#C9963A,#E8B55A);border-radius:2px;margin:0 auto 36px;position:relative;z-index:1}
+.csess{font-family:'Playfair Display',serif;font-size:36px;font-weight:700;color:white;margin-bottom:16px;position:relative;z-index:1;line-height:1.2}
+.cmeta{font-size:15px;color:rgba(255,255,255,.65);line-height:2.2;position:relative;z-index:1}
+.cmeta strong{color:rgba(255,255,255,.9)}
+.cstats{display:flex;gap:18px;margin-top:36px;position:relative;z-index:1;flex-wrap:wrap;justify-content:center}
+.cstat{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:16px;padding:16px 24px;text-align:center;min-width:110px}
+.cstn{font-family:'Playfair Display',serif;font-size:36px;font-weight:700;background:linear-gradient(135deg,#C9963A,#E8B55A);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.cstl{font-size:11px;color:rgba(255,255,255,.45);margin-top:4px}
+.cparts{display:flex;gap:8px;margin-top:24px;flex-wrap:wrap;justify-content:center;position:relative;z-index:1}
+.pchip{padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:5px}
+.pcnt{background:rgba(0,0,0,.15);border-radius:10px;padding:1px 7px;font-size:11px}
+/* CONTENT */
+.content{max-width:820px;margin:0 auto;padding:40px 32px}
+/* TRAINING */
+.tsect{background:linear-gradient(135deg,#FDF3E0,#FEF9ED);border:1.5px solid rgba(201,150,58,.3);border-radius:16px;padding:24px;margin-bottom:36px}
+.sh{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#1A1F3A;margin-bottom:18px;padding-bottom:10px;border-bottom:2px solid rgba(201,150,58,.2)}
+.ti{margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid rgba(201,150,58,.15)}
+.ti:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
+.tl{font-size:11px;font-weight:700;color:#7A5A1A;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.tv{font-size:13px;color:#3D2E0A;line-height:1.6}
+/* CONVERSATION */
+.ch2{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:#1A1F3A;margin-bottom:20px;padding-bottom:10px;border-bottom:2px solid #E8E2D9}
+.ddiv{text-align:center;margin:18px 0 12px;font-size:11px;font-weight:600;color:#8A8FA8;position:relative}
+.ddiv::before,.ddiv::after{content:'';position:absolute;top:50%;width:44%;height:1px;background:#E8E2D9}
+.ddiv::before{left:0}.ddiv::after{right:0}
+.mwrap{display:flex;margin-bottom:12px}
+.mleft{justify-content:flex-start}.mright{justify-content:flex-end}
+.mbub{max-width:78%;border-radius:16px;border:1.5px solid;padding:13px 15px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.mleft .mbub{border-radius:4px 16px 16px 16px}.mright .mbub{border-radius:16px 4px 16px 16px}
+.mhdr{display:flex;align-items:center;gap:7px;margin-bottom:7px;font-size:13px}
+.mname{font-weight:700}.mtime{margin-left:auto;font-size:11px;opacity:.55}
+.etag{font-size:10px;color:#8A8FA8;font-style:italic;margin-left:4px}
+.mcnt{font-size:13.5px;line-height:1.72;color:#1A1F3A}
+.mcnt p{margin-bottom:6px}.mcnt p:last-child{margin-bottom:0}
+.mcnt h2{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;margin:10px 0 6px;color:#0A5C63}
+.mcnt h3{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;margin:8px 0 5px;color:#0A5C63}
+.mcnt h4{font-size:14px;font-weight:700;margin:6px 0 4px}
+.mcnt hr{border:none;border-top:1px solid #E2E8F0;margin:10px 0}
+.mcnt blockquote{border-left:3px solid #C9963A;padding:6px 12px;background:rgba(201,150,58,.06);border-radius:0 8px 8px 0;margin:6px 0;font-style:italic;color:#5A4020}
+.mcnt strong{font-weight:700}.mcnt em{font-style:italic;opacity:.85}
+.dtag{margin-top:10px;padding:7px 12px;background:rgba(10,92,99,.07);border-left:3px solid #0A5C63;border-radius:0 8px 8px 0;font-size:12.5px;color:#0A5C63;font-weight:600;line-height:1.5}
+/* FOOTER */
+.foot{background:linear-gradient(135deg,#1A1F3A,#0D2A4A);padding:28px 32px;text-align:center;margin-top:40px;border-radius:16px}
+.foot h3{font-family:'Playfair Display',serif;font-size:18px;color:white;margin-bottom:8px}
+.fquote{font-family:'Playfair Display',serif;font-style:italic;font-size:13px;color:rgba(255,255,255,.6);margin:12px auto;max-width:480px;line-height:1.7}
+.fmeta{font-size:11px;color:rgba(255,255,255,.35);line-height:1.8;margin-top:10px}
+/* PRINT */
+@media print{body{background:white}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}.cover{min-height:100vh;page-break-after:always}.mwrap{page-break-inside:avoid}@page{margin:14mm;size:A4}}
+@media screen{.pbtn{position:fixed;bottom:28px;right:28px;padding:13px 26px;background:linear-gradient(135deg,#0A5C63,#0E7E88);color:white;border:none;border-radius:13px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 8px 28px rgba(10,92,99,.4);z-index:999;transition:all .2s}.pbtn:hover{transform:translateY(-3px)}}
 </style>
 </head>
 <body>
-
-<!-- PRINT BUTTON (screen only) -->
-<button class="print-btn" onclick="window.print()">🖨️ Save as PDF</button>
-
-<!-- ═══ COVER PAGE ═══ -->
+<button class="pbtn" onclick="window.print()">🖨️ Save as PDF</button>
 <div class="cover">
-  <div class="cover-badge">✦ Family Counseling Session Transcript</div>
-  <div class="cover-av">A</div>
-  <div class="cover-dr">Dr. Aria</div>
-  <div class="cover-sub">Ph.D · Family Counselor · Psychologist</div>
-  <div class="cover-divider"></div>
-  <div class="cover-sess-name">${sessName}</div>
-  <div class="cover-meta">
-    <strong>📅 Date:</strong> ${dateStr}<br>
-    <strong>⏱️ Time:</strong> ${timeStr}
+  <div class="cbadge">✦ Family Counseling Session Transcript</div>
+  <div class="cav">A</div>
+  <div class="cname">Dr. Aria</div>
+  <div class="csub">Ph.D · Family Counselor · Psychologist</div>
+  <div class="cdiv"></div>
+  <div class="csess">${sessName}</div>
+  <div class="cmeta"><strong>📅</strong> ${dateStr}<br><strong>⏱️</strong> ${timeStr}</div>
+  <div class="cstats">
+    <div class="cstat"><div class="cstn">${msgs.length}</div><div class="cstl">Total Messages</div></div>
+    <div class="cstat"><div class="cstn">${memberCount}</div><div class="cstl">Member Messages</div></div>
+    <div class="cstat"><div class="cstn">${ariaCount}</div><div class="cstl">Dr. Aria Responses</div></div>
   </div>
-  <div class="cover-stats">
-    <div class="stat-card"><div class="stat-n">${msgs.length}</div><div class="stat-l">Total Messages</div></div>
-    <div class="stat-card"><div class="stat-n">${memberCount}</div><div class="stat-l">Member Messages</div></div>
-    <div class="stat-card"><div class="stat-n">${ariaCount}</div><div class="stat-l">Dr. Aria Responses</div></div>
-  </div>
-  <div class="cover-participants">${participantsHtml}</div>
+  <div class="cparts">${participantsHtml}</div>
 </div>
-
-<!-- ═══ CONTENT ═══ -->
 <div class="content">
-
   ${trainingHtml}
-
-  <div class="section">
-    <h2 class="section-title">💬 Session Conversation</h2>
-    ${messagesHtml}
-  </div>
-
-  <div class="footer">
+  <h2 class="ch2">💬 Session Conversation (${msgs.length} messages)</h2>
+  ${msgsHtml}
+  <div class="foot">
     <h3>Dr. Aria · Family Counseling</h3>
-    <div class="footer-quote">"In every family conflict, there are no villains — only people who love each other and haven't yet found the language to say it."</div>
-    <p>This transcript is private and confidential.<br>
-    Generated on ${new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}
-    at ${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</p>
+    <div class="fquote">"In every family conflict, there are no villains — only people who love each other and haven't yet found the language to say it."</div>
+    <div class="fmeta">Private &amp; Confidential · Generated ${new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'})} at ${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div>
   </div>
-
 </div>
-
 </body>
 </html>`;
 
-    // Open in new window and print
-    const win = window.open('','_blank','width=900,height=700');
+    // ── 10. Open print window ──
+    const win = window.open('','_blank');
     if(!win){showErr('Please allow pop-ups for this site to export PDF');return;}
-    win.document.write(printDoc);
+    win.document.write(doc);
     win.document.close();
-    // Trigger print after fonts load
-    win.addEventListener('load', ()=>{ setTimeout(()=>win.print(), 1200); });
-    showOk('PDF export ready — Save as PDF in the print dialog that opens');
+    win.addEventListener('load',()=>setTimeout(()=>win.print(),1400));
+    showOk('PDF ready — Save as PDF in the print dialog · Enable "Background graphics"');
 
   }catch(e){
     showErr('Export failed: '+e.message);
-    console.error(e);
+    console.error('PDF export error:',e);
   }
 }
+
 
 // ══════════════════════════════════════════
 //  SESSION RECOVERY FROM LOCAL BACKUP
