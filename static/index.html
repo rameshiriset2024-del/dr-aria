@@ -843,47 +843,46 @@ function changeMasterPassword(){
 // ══════════════════════════════════════════
 function loadSessionsList(){
   if(!db)return;
-  db.ref('sessions').orderByChild('lastActivity').on('value',snap=>{
+  db.ref('sessions').on('value', snap=>{
     const list=[];
-    snap.forEach(c=>list.unshift({id:c.key,...c.val()}));
-    // Never show empty list if Firebase sent empty during reconnect
-    // Only update if we have real data OR we are connected
-    if(list.length>0){
-      window._lastKnownSessions=list;
-      renderMemberSessions(list);
-    } else {
-      // Genuinely empty — no sessions exist yet
-    }
+    snap.forEach(c=>{const v=c.val();if(v)list.push({id:c.key,...v});});
+    list.sort((a,b)=>(b.lastActivity||b.createdAt||0)-(a.lastActivity||a.createdAt||0));
+    console.log('Member sessions loaded:',list.length, list.map(s=>s.name));
+    renderMemberSessions(list);
+  }, err=>{
+    console.error('Sessions error:',err.code, err.message);
+    if(err.code==='PERMISSION_DENIED') showFirebaseRulesError();
   });
 }
 
 function renderMemberSessions(list){
   const el=document.getElementById('sessionsList');
+  if(!el)return;
   if(!list.length){
     el.innerHTML='<div class="s-empty"><div class="s-empty-art">💬</div><h3>No sessions available</h3><p>Ask your Facilitator to create a session for your family.</p></div>';
     return;
   }
+  const colorMap={father:'background:var(--father-lt);color:var(--father)',mother:'background:var(--mother-lt);color:var(--mother)',daughter:'background:var(--daughter-lt);color:var(--daughter)',son:'background:var(--son-lt);color:var(--son)'};
   let h=`<div class="sl-label">${list.length} Session${list.length>1?'s':''}</div>`;
   list.forEach((s,i)=>{
-    const d=new Date(s.createdAt).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
-    const roles=s.roles||[];
-    const roleTagsHtml=roles.map(r=>{
+    const name=s.name||('Session '+(i+1));
+    const d=s.createdAt?new Date(s.createdAt).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'—';
+    const roles=Array.isArray(s.roles)?s.roles:[];
+    const roleTags=roles.map(r=>{
       const cfg=RC[r];
-      if(!cfg)return '';
-      const colors={father:'background:var(--father-lt);color:var(--father)',mother:'background:var(--mother-lt);color:var(--mother)',daughter:'background:var(--daughter-lt);color:var(--daughter)',son:'background:var(--son-lt);color:var(--son)'};
-      return `<span class="ms-role-tag" style="${colors[r]||''}">${cfg.icon} ${cfg.label}</span>`;
+      if(!cfg)return'';
+      return `<span class="ms-role-tag" style="${colorMap[r]||'background:#eee;color:#333'}">${cfg.icon} ${cfg.label}</span>`;
     }).join('');
-    h+=`
-    <div class="ms-card" onclick="promptSessionPassword('${s.id}')">
+    h+=`<div class="ms-card" onclick="promptSessionPassword('${s.id}')">
       <div class="ms-card-top">
         <div class="ms-card-icon" style="background:${COLORS[i%COLORS.length]}">${EMOJIS[i%EMOJIS.length]}</div>
-        <div>
-          <div class="ms-card-name">${escH(s.name)}</div>
+        <div style="flex:1;min-width:0">
+          <div class="ms-card-name">${escH(name)}</div>
           <div class="ms-card-meta">📅 ${d} · 💬 ${s.messageCount||0} messages</div>
         </div>
         <div class="ms-card-lock">🔒</div>
       </div>
-      <div class="ms-roles">${roleTagsHtml}</div>
+      ${roleTags?`<div class="ms-roles">${roleTags}</div>`:''}
     </div>`;
   });
   el.innerHTML=h;
@@ -979,7 +978,7 @@ function renderFacilitatorSessions(list){
           </div>
         </div>
         <div class="sc-acts">
-          <button class="sc-act-btn" onclick="exportSessionPDF('${s.id}',${JSON.stringify({name:s.name,roles:s.roles||[]})})" title="Export PDF">📄</button>
+          <button class="sc-act-btn" onclick="exportSessionPDF('${s.id}', null)" title="Export PDF">📄</button>
           <button class="sc-act-btn" onclick="openEditSession('${s.id}')" title="Edit">✏️</button>
           <button class="sc-act-btn del" onclick="deleteSession('${s.id}','${escH(s.name)}')" title="Delete">🗑️</button>
         </div>
@@ -1708,13 +1707,27 @@ function createParticles(){
 // ══════════════════════════════════════════
 async function exportSessionPDF(sessionId, sessData){
   if(!sessionId){showErr('No session selected');return;}
+  // Handle sessData being string-encoded from facilitator portal onclick
+  if(typeof sessData === 'string'){
+    try{ sessData=JSON.parse(sessData); }catch(e){ sessData={}; }
+  }
+  sessData = sessData || {};
   showOk('Building PDF... please wait');
 
   try{
+    // If no sessData name, fetch from Firebase
+    if(!sessData.name){
+      const sSnap = await db.ref('sessions/'+sessionId).once('value');
+      const sData = sSnap.val()||{};
+      sessData = {...sData, ...sessData};
+    }
     // Fetch all messages from Firebase
-    const snap = await db.ref(`sessions/${sessionId}/messages`).orderByChild('timestamp').once('value');
+    // No orderByChild — sort in JS to avoid requiring Firebase index
+    const snap = await db.ref(`sessions/${sessionId}/messages`).once('value');
     const msgs = [];
     snap.forEach(c => msgs.push({id:c.key,...c.val()}));
+    msgs.sort((a,b)=>(a.timestamp||0)-(b.timestamp||0));
+    console.log('PDF: fetched', msgs.length, 'messages');
 
     if(!msgs.length){showErr('No messages in this session to export');return;}
 
@@ -1800,9 +1813,17 @@ async function exportSessionPDF(sessionId, sessData){
         return `<div class="part-chip" style="background:${rc.bg};color:${rc.text};border:1.5px solid ${rc.border||'#ddd'}">${rc.icon} ${rc.label} <span class="part-count">${v}</span></div>`;
       }).join('');
 
+    // Fetch training for this session from Firebase
+    let sessionTraining = trainingData; // use current if in chat
+    if(!currentSessionId || currentSessionId !== sessionId){
+      const tSnap = await db.ref(`sessions/${sessionId}/training`).once('value');
+      sessionTraining = tSnap.val() || {};
+    }
+
     // Training context summary
     let trainingHtml = '';
-    if(Object.keys(trainingData).some(k=>trainingData[k]&&trainingData[k].length)){
+    if(Object.keys(sessionTraining).some(k=>sessionTraining[k]&&sessionTraining[k].length)){
+      const trainingData = sessionTraining; // local alias for template below
       const sections = [
         {key:'tr_father',  label:'Father Profile'},
         {key:'tr_mother',  label:'Mother Profile'},
@@ -1814,7 +1835,7 @@ async function exportSessionPDF(sessionId, sessData){
         {key:'tr_prev',    label:'Previous Session'},
         {key:'tr_instructions',label:'Dr. Aria Instructions'},
       ];
-      const filled = sections.filter(s=>trainingData[s.key]&&trainingData[s.key].length>0);
+      const filled = sections.filter(s=>sessionTraining[s.key]&&sessionTraining[s.key].length>0);
       if(filled.length){
         trainingHtml = `
           <div class="section context-section">
@@ -1822,7 +1843,7 @@ async function exportSessionPDF(sessionId, sessData){
             ${filled.map(s=>`
               <div class="context-item">
                 <div class="context-label">${s.label}</div>
-                <div class="context-value">${trainingData[s.key].replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+                <div class="context-value">${(sessionTraining[s.key]||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
               </div>`).join('')}
           </div>`;
       }
