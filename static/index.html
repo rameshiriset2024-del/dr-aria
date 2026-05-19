@@ -359,6 +359,36 @@ textarea.ta-fac{border-color:var(--facilitator);box-shadow:0 0 0 3px var(--facil
 @keyframes tIn{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 .t-err{background:#DC2626;color:white;box-shadow:0 8px 24px rgba(220,38,38,.35)}
 .t-ok{background:var(--teal);color:white;box-shadow:0 8px 24px rgba(10,92,99,.35)}
+
+/* PRESENCE DOTS */
+.rchip{position:relative}
+.presence-dot{
+  position:absolute;top:-3px;right:-3px;
+  width:10px;height:10px;border-radius:50%;
+  background:#F97316;border:2px solid white;
+  display:none;z-index:10;
+  animation:ppulse 1.4s ease infinite;
+}
+.rchip.online .presence-dot{display:block}
+@keyframes ppulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(249,115,22,.6);opacity:1}
+  50%{box-shadow:0 0 0 5px rgba(249,115,22,0);opacity:.8}
+}
+/* TYPING BANNER */
+.typing-banner{
+  background:white;border-bottom:1px solid var(--border);
+  padding:4px 14px;font-size:12px;font-weight:500;
+  color:var(--text-mid);display:none;align-items:center;
+  gap:6px;min-height:24px;flex-shrink:0;
+}
+.typing-banner.vis{display:flex}
+.wt-dot{width:5px;height:5px;border-radius:50%;
+  animation:wtb 1.2s infinite ease;display:inline-block}
+.wt-dot:nth-child(2){animation-delay:.15s}
+.wt-dot:nth-child(3){animation-delay:.3s}
+@keyframes wtb{0%,60%,100%{transform:translateY(0);opacity:.4}
+  30%{transform:translateY(-4px);opacity:1}}
+
 .flash-ov{position:fixed;inset:0;pointer-events:none;z-index:9999;animation:fFade .7s ease forwards}
 @keyframes fFade{0%{background:rgba(10,92,99,.12)}100%{background:rgba(10,92,99,0)}}
 
@@ -534,11 +564,12 @@ textarea.ta-fac{border-color:var(--facilitator);box-shadow:0 0 0 3px var(--facil
   <div class="role-bar" id="roleBar">
     <span class="rl">I am →</span>
   </div>
+  <div class="typing-banner" id="typingBanner"></div>
   <div class="msgs" id="msgs"></div>
   <div class="cinput">
     <div class="who-ind" id="whoInd">👆 Select your role above</div>
     <div class="irow">
-      <textarea id="msgInput" rows="1" placeholder="Select your role first..." disabled onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+      <textarea id="msgInput" rows="1" placeholder="Select your role first..." disabled onkeydown="handleKey(event)" oninput="handleInput(this)"></textarea>
       <button class="sbtn" id="sendBtn" onclick="sendMessage()" disabled>➤</button>
     </div>
   </div>
@@ -1148,19 +1179,24 @@ function buildRoleBar(sessData){
   allRoles.forEach(r=>{
     const cfg=RC[r];if(!cfg)return;
     const cls=r==='facilitator'?'rfac':{father:'rf',mother:'rm',daughter:'rd',son:'rs'}[r]||'rf';
-    html+=`<div class="rchip ${cls}" id="chip-${r}" onclick="selectRole('${r}')">${cfg.icon} ${cfg.label}</div>`;
+    html+=`<div class="rchip ${cls}" id="chip-${r}" onclick="selectRole('${r}')">${cfg.icon} ${cfg.label}<span class="presence-dot" id="dot-${r}"></span></div>`;
   });
   bar.innerHTML=html;
 }
 
 function goToSessions(){
+  clearPresence();
   if(currentSessionId){
     try{
-      db.ref(`sessions/${currentSessionId}/messages`).off();
-      db.ref(`sessions/${currentSessionId}/typing`).off();
+      db.ref('sessions/'+currentSessionId+'/messages').off();
+      db.ref('sessions/'+currentSessionId+'/typing').off();
+      db.ref('sessions/'+currentSessionId+'/presence').off();
+      db.ref('sessions/'+currentSessionId+'/whoTyping').off();
     }catch(e){}
   }
-  currentSessionId=null;currentSessionData=null;renderedIds=new Set();
+  currentSessionId=null;currentSessionData=null;renderedIds=new Set();activeRole=null;
+  const banner=document.getElementById('typingBanner');
+  if(banner){banner.classList.remove('vis');banner.innerHTML='';}
   showScreen('sessionScreen');
 }
 
@@ -1204,6 +1240,42 @@ function subscribeMessages(id){
 
   // ── typing indicator ──
   db.ref(`sessions/${id}/typing`).on('value',snap=>snap.val()?showTyping():hideTyping());
+
+  // ── Online presence: show orange dot on who is online ──
+  db.ref('sessions/'+id+'/presence').on('value',snap=>{
+    document.querySelectorAll('.rchip').forEach(c=>c.classList.remove('online'));
+    if(!snap.val())return;
+    snap.forEach(c=>{
+      if(c.val()&&c.val().online){
+        const role=c.key;
+        if(role===activeRole)return; // don't show own dot
+        const chip=document.getElementById('chip-'+role);
+        if(chip)chip.classList.add('online');
+      }
+    });
+  });
+
+  // ── Who is typing ──
+  const roleColors={father:'var(--father)',mother:'var(--mother)',daughter:'var(--daughter)',son:'var(--son)',facilitator:'var(--teal)'};
+  db.ref('sessions/'+id+'/whoTyping').on('value',snap=>{
+    const banner=document.getElementById('typingBanner');
+    if(!banner)return;
+    const who=[];
+    if(snap.val()){
+      snap.forEach(c=>{
+        if(c.val()===true&&c.key!==activeRole){
+          const cfg=RC[c.key];
+          if(cfg)who.push({role:c.key,cfg});
+        }
+      });
+    }
+    if(!who.length){banner.classList.remove('vis');banner.innerHTML='';return;}
+    const col=roleColors[who[0].role]||'#888';
+    const names=who.map(w=>`<strong style="color:${roleColors[w.role]||'#333'}">${w.cfg.icon} ${w.cfg.label}</strong>`).join(' & ');
+    banner.innerHTML=names+' '+(who.length===1?'is':'are')+' typing'
+      +` <span style="display:inline-flex;gap:3px;margin-left:2px"><span class="wt-dot" style="background:${col}"></span><span class="wt-dot" style="background:${col}"></span><span class="wt-dot" style="background:${col}"></span></span>`;
+    banner.classList.add('vis');
+  });
 
   // ── Monitor Firebase connection: on reconnect, reload any missing messages ──
   db.ref('.info/connected').on('value', snap=>{
@@ -1273,6 +1345,9 @@ async function sendMessage(){
   const ta=document.getElementById('msgInput');
   const text=ta.value.trim();if(!text)return;
   const cfg=RC[activeRole];
+  // Clear typing on send
+  clearTimeout(typingTimer);isTypingNow=false;
+  db.ref('sessions/'+currentSessionId+'/whoTyping/'+activeRole).remove();
   await saveMsg(currentSessionId,activeRole,text);
   ta.value='';autoResize(ta);
   isProcessing=true;document.getElementById('sendBtn').disabled=true;
@@ -1605,6 +1680,28 @@ function hideTyping(){document.getElementById('typInd')?.remove();}
 // ══════════════════════════════════════════
 //  ROLE SELECTION
 // ══════════════════════════════════════════
+// ── PRESENCE STATE ──
+let presenceRef=null;
+let typingTimer=null;
+let isTypingNow=false;
+
+function announcePresence(role){
+  if(!currentSessionId||!db)return;
+  if(presenceRef)presenceRef.remove();
+  presenceRef=db.ref('sessions/'+currentSessionId+'/presence/'+role);
+  presenceRef.set({online:true,ts:Date.now()});
+  presenceRef.onDisconnect().remove();
+}
+
+function clearPresence(){
+  if(presenceRef){presenceRef.remove();presenceRef=null;}
+  if(currentSessionId&&activeRole&&db){
+    db.ref('sessions/'+currentSessionId+'/whoTyping/'+activeRole).remove();
+  }
+  isTypingNow=false;
+  clearTimeout(typingTimer);
+}
+
 function selectRole(role){
   activeRole=role;
   const cfg=RC[role];if(!cfg)return;
@@ -1614,6 +1711,7 @@ function selectRole(role){
   const ta=document.getElementById('msgInput');
   ta.disabled=false;ta.placeholder=`What would you like to share, ${cfg.label}?`;ta.className=cfg.ta;ta.focus();
   const sb=document.getElementById('sendBtn');sb.className=`sbtn ${cfg.sb}`;sb.disabled=false;
+  announcePresence(role);
 }
 
 function resetRoleUI(){
@@ -1695,6 +1793,26 @@ function showToast(msg,type){
   document.body.appendChild(t);setTimeout(()=>t.remove(),4500);
 }
 function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}}
+
+function handleInput(el){
+  autoResize(el);
+  if(!activeRole||!currentSessionId||!db)return;
+  if(el.value.trim().length>0){
+    if(!isTypingNow){
+      isTypingNow=true;
+      db.ref('sessions/'+currentSessionId+'/whoTyping/'+activeRole).set(true);
+    }
+    clearTimeout(typingTimer);
+    typingTimer=setTimeout(()=>{
+      isTypingNow=false;
+      db.ref('sessions/'+currentSessionId+'/whoTyping/'+activeRole).remove();
+    },3000);
+  } else {
+    clearTimeout(typingTimer);
+    isTypingNow=false;
+    db.ref('sessions/'+currentSessionId+'/whoTyping/'+activeRole).remove();
+  }
+}
 function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,100)+'px';}
 
 function createParticles(){
@@ -2014,6 +2132,8 @@ function viewBackup(sessId){
   inp.type='hidden';inp.id='tr-save-mode';inp.value='session';
   document.body.appendChild(inp);
   initFirebase();
+  window.addEventListener('beforeunload',()=>clearPresence());
+  window.addEventListener('pagehide',()=>clearPresence());
 })();
 </script>
 
